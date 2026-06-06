@@ -43,17 +43,19 @@ const SidebarItem = ({ icon: Icon, label, path }: { icon: any, label: string, pa
       )
     }
   >
-    <Icon className="w-5 h-5 shrink-0" />
-    <span className="font-bold text-sm tracking-tight">{label}</span>
-    {/* Active indicator dot */}
-    <NavLink to={path}>
-      {({ isActive }) => isActive && (
-        <motion.div 
-          layoutId="sidebar-active"
-          className="absolute left-[-12px] w-1 h-6 bg-primary rounded-r-full"
-        />
-      )}
-    </NavLink>
+    {({ isActive }) => (
+      <>
+        <Icon className="w-5 h-5 shrink-0" />
+        <span className="font-bold text-sm tracking-tight">{label}</span>
+        {/* Active indicator dot */}
+        {isActive && (
+          <motion.div 
+            layoutId="sidebar-active"
+            className="absolute left-[-12px] w-1 h-6 bg-primary rounded-r-full"
+          />
+        )}
+      </>
+    )}
   </NavLink>
 );
 

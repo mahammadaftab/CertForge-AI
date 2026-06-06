@@ -5,13 +5,13 @@ from jose import jwt, JWTError
 from pydantic import ValidationError
 
 from app.core.config import settings
-from app.db.database import db_initialized
+from app.db import database
 from app.models.user import User
 from app.schemas.token import TokenPayload
 
 def require_db():
     """Dependency that checks if MongoDB is connected."""
-    if not db_initialized:
+    if not database.db_initialized:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Database not available. Please check MongoDB Atlas cluster status.",
