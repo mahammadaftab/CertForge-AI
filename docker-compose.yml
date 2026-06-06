@@ -30,7 +30,7 @@ services:
       - POSTGRES_USER=${POSTGRES_USER:-certforge_user}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-securepassword123}
       - POSTGRES_DB=${POSTGRES_DB:-certforge_db}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
     depends_on:
       db:
         condition: service_healthy

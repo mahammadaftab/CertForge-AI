@@ -6,7 +6,7 @@ from pydantic import ValidationError
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
-from app.core.security import ALGORITHM
+
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.token import TokenPayload
@@ -25,7 +25,7 @@ def get_current_user(
         token_data = TokenPayload(**payload)
     except (JWTError, ValidationError):
         raise HTTPException(
-            status_code=status.HTTP_03_FORBIDDEN,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",
         )
     user = db.query(User).filter(User.id == token_data.sub).first()

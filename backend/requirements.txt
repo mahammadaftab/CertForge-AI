@@ -7,6 +7,10 @@ pydantic-settings
 alembic
 langchain
 langgraph
-openai
+langchain-google-genai
 pytest
 httpx
+scikit-learn
+pandas
+joblib
+networkx

@@ -33,9 +33,7 @@ class Settings(BaseSettings):
         return f"postgresql://{values.get('POSTGRES_USER')}:{values.get('POSTGRES_PASSWORD')}@{values.get('POSTGRES_SERVER')}:{values.get('POSTGRES_PORT')}/{values.get('POSTGRES_DB')}"
 
     # AI Models
-    OPENAI_API_KEY: str | None = None
-    AZURE_OPENAI_API_KEY: str | None = None
-    AZURE_OPENAI_ENDPOINT: str | None = None
+    GEMINI_API_KEY: str | None = None
 
     # Security
     SECRET_KEY: str = "supersecretkeychangeinproduction"
