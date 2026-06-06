@@ -1,0 +1,22 @@
+# Environment
+.env
+.venv
+venv/
+__pycache__/
+*.pyc
+
+# Docker
+.docker/
+
+# Node
+node_modules/
+.next/
+out/
+build/
+npm-debug.log
+yarn-error.log
+
+# IDEs
+.idea/
+.vscode/
+*.swp
