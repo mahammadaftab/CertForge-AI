@@ -2,26 +2,24 @@ from datetime import timedelta
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.orm import Session
 
 from app.api import deps
 from app.core import security
 from app.core.config import settings
-from app.db.database import get_db
-from app.models.user import User, UserRole
+from app.models.user import User
 from app.schemas.token import Token
 from app.schemas.user import UserCreate, User as UserSchema
 
 router = APIRouter()
 
 @router.post("/login/access-token", response_model=Token)
-def login_access_token(
-    db: Session = Depends(get_db), form_data: OAuth2PasswordRequestForm = Depends()
+async def login_access_token(
+    form_data: OAuth2PasswordRequestForm = Depends()
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests
     """
-    user = db.query(User).filter(User.email == form_data.username).first()
+    user = await User.find_one(User.email == form_data.username)
     if not user or not security.verify_password(form_data.password, user.hashed_password):
         raise HTTPException(status_code=400, detail="Incorrect email or password")
     elif not user.is_active:
@@ -37,15 +35,14 @@ def login_access_token(
     }
 
 @router.post("/register", response_model=UserSchema)
-def register_user(
+async def register_user(
     *,
-    db: Session = Depends(get_db),
     user_in: UserCreate
 ) -> Any:
     """
     Create new user.
     """
-    user = db.query(User).filter(User.email == user_in.email).first()
+    user = await User.find_one(User.email == user_in.email)
     if user:
         raise HTTPException(
             status_code=400,
@@ -58,13 +55,11 @@ def register_user(
         full_name=user_in.full_name,
         role=user_in.role,
     )
-    db.add(db_obj)
-    db.commit()
-    db.refresh(db_obj)
+    await db_obj.insert()
     return db_obj
 
 @router.post("/test-token", response_model=UserSchema)
-def test_token(current_user: User = Depends(deps.get_current_user)) -> Any:
+async def test_token(current_user: User = Depends(deps.get_current_active_user)) -> Any:
     """
     Test access token
     """

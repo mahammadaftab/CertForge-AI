@@ -1,13 +1,12 @@
-from sqlalchemy import Column, String, ForeignKey, UUID, JSON
-from sqlalchemy.orm import relationship
-from app.db.base_class import BaseModel
+from typing import List, Any
+from beanie import Link
+from app.db.base_class import BaseDocument
+from app.models.certification import Certification
 
-class Assessment(BaseModel):
-    __tablename__ = "assessment"
+class Assessment(BaseDocument):
+    title: str
+    certification: Link[Certification]
+    questions: List[Any]
 
-    title = Column(String, nullable=False)
-    certification_id = Column(UUID(as_uuid=True), ForeignKey("certification.id"))
-    questions = Column(JSON) # JSON structure of questions
-
-    certification = relationship("Certification", back_populates="assessments")
-    results = relationship("AssessmentResult", back_populates="assessment")
+    class Settings:
+        name = "assessments"

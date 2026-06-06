@@ -2,7 +2,7 @@ from typing import List, Dict, Any
 import logging
 from langchain_community.vectorstores import FAISS
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
-from langchain.docstore.document import Document
+from langchain_core.documents import Document
 from app.core.config import settings
 
 logger = logging.getLogger(__name__)

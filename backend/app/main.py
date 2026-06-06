@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.api.v1.router import api_router
+from app.db.database import init_db
 
 # Setup custom logging
 setup_logging()
@@ -32,6 +33,8 @@ def create_app() -> FastAPI:
     @app.on_event("startup")
     async def startup_event():
         logger.info(f"Starting {settings.PROJECT_NAME} API...")
+        await init_db()
+        logger.info("MongoDB Atlas connected and Beanie initialized.")
 
     @app.on_event("shutdown")
     async def shutdown_event():

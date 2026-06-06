@@ -1,16 +1,12 @@
-from sqlalchemy import Column, String, ForeignKey, UUID
-from sqlalchemy.orm import relationship
-from app.db.base_class import BaseModel
+from typing import Optional, List
+from beanie import Link
+from app.db.base_class import BaseDocument
+from app.models.user import User
 
-class Employee(BaseModel):
-    __tablename__ = "employee"
+class Employee(BaseDocument):
+    user: Link[User]
+    team_id: Optional[str] = None # Reference to Team
+    job_title: str
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"), unique=True)
-    team_id = Column(UUID(as_uuid=True), ForeignKey("team.id"))
-    job_title = Column(String)
-
-    user = relationship("User", back_populates="employee")
-    team = relationship("Team", back_populates="employees")
-    study_plans = relationship("StudyPlan", back_populates="employee")
-    assessment_results = relationship("AssessmentResult", back_populates="employee")
-    readiness_scores = relationship("ReadinessScore", back_populates="employee")
+    class Settings:
+        name = "employees"

@@ -1,12 +1,12 @@
-from sqlalchemy import Column, String, ForeignKey, UUID, JSON
-from sqlalchemy.orm import relationship
-from app.db.base_class import BaseModel
+from typing import Any
+from beanie import Link
+from app.db.base_class import BaseDocument
+from app.models.user import User
 
-class AuditLog(BaseModel):
-    __tablename__ = "audit_log"
+class AuditLog(BaseDocument):
+    user: Link[User]
+    action: str
+    details: Any
 
-    user_id = Column(UUID(as_uuid=True), ForeignKey("user.id"))
-    action = Column(String, nullable=False) # e.g., "LOGIN", "CREATE_CERT", "TAKE_ASSESSMENT"
-    details = Column(JSON) # Additional context
-
-    user = relationship("User", back_populates="audit_logs")
+    class Settings:
+        name = "audit_logs"

@@ -1,14 +1,14 @@
-from sqlalchemy import Column, Float, ForeignKey, UUID, JSON
-from sqlalchemy.orm import relationship
-from app.db.base_class import BaseModel
+from typing import Any
+from beanie import Link
+from app.db.base_class import BaseDocument
+from app.models.employee import Employee
+from app.models.assessment import Assessment
 
-class AssessmentResult(BaseModel):
-    __tablename__ = "assessment_result"
+class AssessmentResult(BaseDocument):
+    employee: Link[Employee]
+    assessment: Link[Assessment]
+    score: float
+    answers: Any
 
-    employee_id = Column(UUID(as_uuid=True), ForeignKey("employee.id"))
-    assessment_id = Column(UUID(as_uuid=True), ForeignKey("assessment.id"))
-    score = Column(Float)
-    answers = Column(JSON) # Employee's submitted answers
-
-    employee = relationship("Employee", back_populates="assessment_results")
-    assessment = relationship("Assessment", back_populates="results")
+    class Settings:
+        name = "assessment_results"
