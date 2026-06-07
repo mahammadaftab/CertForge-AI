@@ -4,7 +4,7 @@ import { Terminal, Activity } from 'lucide-react';
 import axios from 'axios';
 
 const publicApi = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'https://certforge-ai.onrender.com/api/v1',
 });
 
 const LiveDashboardSection = () => {

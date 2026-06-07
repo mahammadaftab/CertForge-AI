@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1',
+  baseURL: import.meta.env.VITE_API_URL || 'https://certforge-ai.onrender.com/api/v1',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -24,7 +24,7 @@ api.interceptors.response.use(
       const refreshToken = localStorage.getItem('refresh_token');
       if (refreshToken) {
         try {
-          const res = await axios.post(`${import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1'}/auth/refresh-token`, {
+          const res = await axios.post(`${import.meta.env.VITE_API_URL || 'https://certforge-ai.onrender.com/api/v1'}/auth/refresh-token`, {
             refresh_token: refreshToken,
           });
           localStorage.setItem('access_token', res.data.access_token);
