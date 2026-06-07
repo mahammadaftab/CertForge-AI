@@ -60,7 +60,7 @@ async def get_risk_heatmap(current_user: Any = Depends(deps.RoleChecker([UserRol
     ]
 
 @router.get("/live-feed")
-async def get_live_feed(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def get_live_feed():
     """
     Returns the most recent system activity logs.
     """
