@@ -1,29 +1,33 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { AuthProvider, useAuth, UserRole } from './context/AuthContext';
 import AppLayout from './components/AppLayout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
 import Employees from './pages/Employees';
-import Teams from './pages/Teams';
 import Intelligence from './pages/Intelligence';
 import AssessmentCenter from './pages/AssessmentCenter';
 import SuccessPredictor from './pages/SuccessPredictor';
-import LiveAnalytics from './pages/LiveAnalytics';
+import WorkIQ from './pages/WorkIQ';
 import AICommandCenter from './pages/AICommandCenter';
+import FabricIQ from './pages/FabricIQ';
 import Reports from './pages/Reports';
 import Placeholder from './pages/Placeholder';
 import LandingPage from './pages/LandingPage';
 
-const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+const PrivateRoute: React.FC<{ children: React.ReactNode, allowedRoles?: UserRole[] }> = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
   
   if (loading) return (
-    <div className="h-screen bg-[#010204] flex items-center justify-center">
+    <div className="h-screen bg-[#0A0F1E] flex items-center justify-center">
        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
     </div>
   );
   if (!user) return <Navigate to="/login" />;
+
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" />;
+  }
   
   if (window.location.pathname === '/command-center') {
      return <>{children}</>;
@@ -51,7 +55,7 @@ function App() {
           <Route 
             path="/command-center" 
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={[UserRole.ADMIN, UserRole.MANAGER]}>
                 <AICommandCenter />
               </PrivateRoute>
             } 
@@ -59,13 +63,13 @@ function App() {
           <Route 
             path="/employees" 
             element={
-              <PrivateRoute>
+              <PrivateRoute allowedRoles={[UserRole.ADMIN, UserRole.MANAGER]}>
                 <Employees />
               </PrivateRoute>
             } 
           />
           <Route 
-            path="/intelligence" 
+            path="/foundry-iq" 
             element={
               <PrivateRoute>
                 <Intelligence />
@@ -73,18 +77,18 @@ function App() {
             } 
           />
           <Route 
-            path="/analytics" 
+            path="/work-iq" 
             element={
               <PrivateRoute>
-                <LiveAnalytics />
+                <WorkIQ />
               </PrivateRoute>
             } 
           />
           <Route 
-            path="/teams" 
+            path="/fabric-iq" 
             element={
-              <PrivateRoute>
-                <Teams />
+              <PrivateRoute allowedRoles={[UserRole.ADMIN, UserRole.MANAGER]}>
+                <FabricIQ />
               </PrivateRoute>
             } 
           />

@@ -1,8 +1,9 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, intelligence, semantic, assessment, predictor, certifications, dashboard, employees, command_center, teams, reports
+from app.api.v1.endpoints import health, auth, intelligence, semantic, assessment, predictor, certifications, dashboard, employees, command_center, teams, reports, public, work_iq, fabric_iq
 
 api_router = APIRouter()
 api_router.include_router(health.router, prefix="/health", tags=["health"])
+api_router.include_router(public.router, prefix="/public", tags=["public"])
 api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
 api_router.include_router(intelligence.router, prefix="/intelligence", tags=["intelligence"])
 api_router.include_router(semantic.router, prefix="/semantic", tags=["semantic"])
@@ -14,3 +15,5 @@ api_router.include_router(employees.router, prefix="/employees", tags=["employee
 api_router.include_router(command_center.router, prefix="/command-center", tags=["command-center"])
 api_router.include_router(teams.router, prefix="/teams", tags=["teams"])
 api_router.include_router(reports.router, prefix="/reports", tags=["reports"])
+api_router.include_router(work_iq.router, prefix="/work-iq", tags=["work-iq"])
+api_router.include_router(fabric_iq.router, prefix="/fabric-iq", tags=["fabric-iq"])

@@ -6,11 +6,12 @@ from app.models.team import Team
 from app.models.certification import Certification
 from app.models.readiness_score import ReadinessScore
 from app.models.audit_log import AuditLog
+from app.models.user import UserRole
 
 router = APIRouter()
 
 @router.get("/graph-data")
-async def get_graph_data(current_user: Any = Depends(deps.get_current_active_user)):
+async def get_graph_data(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
     """
     Returns nodes and links for the D3 Knowledge Graph.
     """
@@ -46,7 +47,7 @@ async def get_graph_data(current_user: Any = Depends(deps.get_current_active_use
     return {"nodes": nodes, "links": links}
 
 @router.get("/risk-heatmap")
-async def get_risk_heatmap(current_user: Any = Depends(deps.get_current_active_user)):
+async def get_risk_heatmap(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
     """
     Returns data for the Team Risk Heatmap.
     """
@@ -59,7 +60,7 @@ async def get_risk_heatmap(current_user: Any = Depends(deps.get_current_active_u
     ]
 
 @router.get("/live-feed")
-async def get_live_feed(current_user: Any = Depends(deps.get_current_active_user)):
+async def get_live_feed(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
     """
     Returns the most recent system activity logs.
     """
@@ -73,7 +74,7 @@ async def get_live_feed(current_user: Any = Depends(deps.get_current_active_user
     } for log in logs]
 
 @router.get("/readiness-radar")
-async def get_readiness_radar(current_user: Any = Depends(deps.get_current_active_user)):
+async def get_readiness_radar(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
     """
     Aggregates readiness across multiple dimensions.
     """

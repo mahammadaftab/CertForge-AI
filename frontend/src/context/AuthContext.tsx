@@ -1,8 +1,24 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../lib/api';
 
+export const UserRole = {
+  ADMIN: 'admin',
+  MANAGER: 'manager',
+  EMPLOYEE: 'employee',
+} as const;
+
+export type UserRole = typeof UserRole[keyof typeof UserRole];
+
+export interface User {
+  id: string;
+  email: string;
+  full_name: string;
+  role: UserRole;
+  is_active: boolean;
+}
+
 interface AuthContextType {
-  user: any;
+  user: User | null;
   loading: boolean;
   login: (accessToken: string, refreshToken: string) => void;
   logout: () => void;
@@ -11,7 +27,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchUser = async () => {
@@ -40,10 +56,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     fetchUser();
   };
 
-  const logout = () => {
-    localStorage.clear();
-    setUser(null);
-    window.location.href = '/login';
+  const logout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error("Logout error", error);
+    } finally {
+      localStorage.clear();
+      setUser(null);
+      window.location.href = '/login';
+    }
   };
 
   return (

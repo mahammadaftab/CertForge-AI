@@ -1,220 +1,173 @@
-import React from 'react';
-import { 
-  Activity, 
-  Clock, 
-  Brain, 
-  Zap, 
-  ShieldCheck, 
-  ChevronRight,
-  BarChart2,
-  Sparkles,
-  LayoutDashboard,
-  Cpu
-} from 'lucide-react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { cn } from '../lib/utils';
+import { BrainCircuit, Search, Database, FileText, CheckCircle, Brain, Target, Command } from 'lucide-react';
+import api from '../lib/api';
+
+const StepNode = ({ icon: Icon, title, desc, delay, active }: any) => (
+  <motion.div 
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay, duration: 0.5 }}
+    className={`flex items-start gap-6 p-6 rounded-[2rem] border ${active ? 'bg-primary/10 border-primary/30 shadow-[0_0_30px_rgba(0,242,255,0.15)]' : 'bg-white/5 border-white/5 opacity-50'} transition-all duration-500`}
+  >
+     <div className={`p-4 rounded-xl ${active ? 'bg-primary/20 text-primary shadow-glow' : 'bg-white/10 text-white/50'}`}>
+        <Icon className="w-6 h-6" />
+     </div>
+     <div>
+        <h4 className={`text-lg font-black tracking-tighter ${active ? 'text-white' : 'text-white/50'}`}>{title}</h4>
+        <p className="text-[11px] font-medium description mt-2 leading-relaxed">{desc}</p>
+     </div>
+  </motion.div>
+);
 
 const FoundryIQ: React.FC = () => {
+  const [query, setQuery] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+  const [activeStep, setActiveStep] = useState(0);
+
+  const simulateReasoningWorkflow = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    setActiveStep(1);
+    
+    // Simulate multi-step reasoning
+    setTimeout(() => setActiveStep(2), 1500); // Doc Retrieval
+    setTimeout(() => setActiveStep(3), 3000); // Agent Reasoning
+    
+    try {
+      // Real API Call
+      const res = await api.post('/intelligence/orchestrate', {
+        employee_id: "demo-user",
+        certification_target: query,
+        employee_skills: ["Python", "Cloud"]
+      });
+      setTimeout(() => {
+         setActiveStep(4);
+         setResult(res.data);
+         setLoading(false);
+      }, 4500);
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      setActiveStep(0);
+    }
+  };
+
   return (
-    <div className="space-y-12 pb-20">
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
-        <div className="space-y-4">
-           <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-xl text-primary"><Brain className="w-5 h-5" /></div>
-              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30">Intelligence / Core</span>
-           </div>
-           <h1 className="text-6xl font-black tracking-tighter dark:text-white leading-[0.9]">Foundry <span className="text-primary">Intelligence.</span></h1>
-           <p className="text-foreground/60 text-lg font-medium max-w-2xl italic">Grounded workforce insights powered by the Fabric IQ semantic engine.</p>
-        </div>
-        <div className="flex gap-4">
-           <div className="flex -space-x-4">
-              {[1,2,3,4].map(i => (
-                <div key={i} className="w-12 h-12 rounded-2xl border-4 border-background dark:border-[#02040a] bg-foreground/5 dark:bg-white/10 flex items-center justify-center text-[10px] font-black" />
-              ))}
-           </div>
-           <button className="mica px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest border-primary/20 text-primary hover-lift">
-              Sync Real-time
-           </button>
-        </div>
-      </div>
+    <div className="h-full flex flex-col gap-6 text-white overflow-hidden pb-6">
+      <header className="flex justify-between items-end mb-4 px-4">
+         <div>
+            <h1 className="text-5xl font-black tracking-tighter flex items-center gap-4 text-glow">
+              <BrainCircuit className="w-12 h-12 text-secondary" /> Foundry IQ
+            </h1>
+            <p className="text-xs font-black uppercase tracking-[0.4em] description mt-2">Agentic Reasoning & Document Intelligence</p>
+         </div>
+      </header>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        <div className="lg:col-span-8 space-y-8">
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            className="mica p-10 rounded-[3.5rem] relative overflow-hidden group shadow-2xl border-white/20"
-          >
-            <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity duration-1000">
-              <Activity className="w-64 h-64 text-primary" />
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
+         {/* Query & Reasoning Flow */}
+         <div className="os-glass rounded-[3rem] p-8 md:p-12 flex flex-col gap-8 shadow-2xl relative overflow-hidden border-white/10">
+            <div className="absolute inset-0 bg-secondary/5 blur-3xl pointer-events-none" />
+            <div className="relative group">
+               <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity" />
+               <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-6 h-6 text-primary z-10" />
+               <input 
+                 type="text"
+                 value={query}
+                 onChange={e => setQuery(e.target.value)}
+                 onKeyDown={e => e.key === 'Enter' && simulateReasoningWorkflow()}
+                 placeholder="Input objective for agentic reasoning... (e.g. AZ-104 Readiness)"
+                 className="w-full os-glass opacity-80 border border-white/10 focus:border-primary/50 rounded-full py-6 pl-16 pr-6 text-lg font-black outline-none transition-all relative z-10 shadow-inner"
+                 disabled={loading}
+               />
             </div>
-            
-            <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-10">
-                <div className="p-4 bg-primary rounded-2xl text-white shadow-xl shadow-primary/30">
-                  <Cpu className="w-7 h-7" />
-                </div>
-                <div>
-                   <h3 className="text-2xl font-black dark:text-white tracking-tighter leading-none">Work IQ Optimizer</h3>
-                   <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mt-2">Active Workforce Modulation</p>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-6">
-                  <div className="p-8 rounded-[2.5rem] bg-foreground/5 dark:bg-white/5 border border-white/5 hover:border-primary/40 transition-all cursor-pointer group shadow-xl">
-                    <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest mb-2">Optimal Study Window</p>
-                    <p className="text-2xl font-black text-primary group-hover:scale-105 transition-transform duration-500">09:00 AM — 10:45 AM</p>
-                    <div className="mt-4 flex items-center gap-2 text-emerald-500">
-                       <Sparkles className="w-3 h-3" />
-                       <span className="text-[8px] font-black uppercase tracking-tighter">High Focus Confidence</span>
-                    </div>
-                  </div>
-                  <div className="p-8 rounded-[2.5rem] bg-foreground/5 dark:bg-white/5 border border-white/5 hover:border-primary/40 transition-all cursor-pointer group shadow-xl">
-                    <p className="text-[9px] font-black text-foreground/40 uppercase tracking-widest mb-2">Aggregate Focus Score</p>
-                    <div className="flex items-end gap-3">
-                      <p className="text-5xl font-black dark:text-white">88.4</p>
-                      <p className="text-xs font-black text-emerald-500 mb-1.5 uppercase tracking-widest">+12% WoW</p>
-                    </div>
-                  </div>
-                </div>
+            <div className="flex-1 overflow-y-auto no-scrollbar space-y-4">
+               <StepNode 
+                 icon={Database} 
+                 title="Knowledge Retrieval" 
+                 desc="Semantic search across enterprise vectors, querying skill graphs and past certification telemetry." 
+                 active={activeStep >= 1} 
+                 delay={0.1} 
+               />
+               <StepNode 
+                 icon={FileText} 
+                 title="Document Intelligence" 
+                 desc="Parsing relevant whitepapers, documentation, and assessment logs via Azure OpenAI." 
+                 active={activeStep >= 2} 
+                 delay={0.2} 
+               />
+               <StepNode 
+                 icon={Brain} 
+                 title="Multi-Agent Reasoning" 
+                 desc="Synthesizing findings through the Readiness Agent to formulate a tailored study strategy." 
+                 active={activeStep >= 3} 
+                 delay={0.3} 
+               />
+               <StepNode 
+                 icon={CheckCircle} 
+                 title="Citation & Generation" 
+                 desc="Generating final verified blueprint with semantic citations attached." 
+                 active={activeStep >= 4} 
+                 delay={0.4} 
+               />
+            </div>
+         </div>
 
-                <div className="mica p-8 rounded-[2.5rem] flex flex-col justify-between border-white/10 shadow-xl">
-                   <div>
-                      <h4 className="font-black text-xs uppercase tracking-[0.2em] mb-8 text-foreground/40">Load Distribution</h4>
-                      <div className="space-y-6">
-                        {[
-                          { label: 'Meetings / Synchs', val: 65, color: 'bg-blue-500' },
-                          { label: 'Deep Focus', val: 25, color: 'bg-emerald-500' },
-                          { label: 'Neural Training', val: 10, color: 'bg-primary' },
-                        ].map((item, i) => (
-                          <div key={i} className="space-y-3">
-                            <div className="flex justify-between text-[9px] font-black uppercase tracking-widest">
-                              <span className="text-foreground/40">{item.label}</span>
-                              <span className="dark:text-white">{item.val}%</span>
-                            </div>
-                            <div className="h-1.5 w-full bg-foreground/5 dark:bg-white/5 rounded-full overflow-hidden">
-                              <motion.div 
-                                initial={{ width: 0 }}
-                                whileInView={{ width: `${item.val}%` }}
-                                transition={{ duration: 1, delay: i * 0.1 }}
-                                className={cn("h-full rounded-full", item.color)} 
-                              />
-                            </div>
-                          </div>
+         {/* Results Pane */}
+         <div className="os-window rounded-[3rem] p-8 md:p-12 flex flex-col shadow-2xl border-white/5 relative overflow-hidden">
+            {loading ? (
+               <div className="flex-1 flex flex-col items-center justify-center gap-8">
+                  <div className="w-20 h-20 border-4 border-secondary/20 border-t-secondary rounded-full animate-spin shadow-[0_0_30px_rgba(112,0,255,0.4)]" />
+                  <p className="text-xs font-black uppercase tracking-widest text-secondary animate-pulse">Processing Neural Pipeline...</p>
+               </div>
+            ) : result ? (
+               <motion.div 
+                 initial={{ opacity: 0, scale: 0.95 }}
+                 animate={{ opacity: 1, scale: 1 }}
+                 className="flex-1 flex flex-col overflow-y-auto no-scrollbar"
+               >
+                  <div className="flex items-center gap-3 mb-8">
+                     <Target className="w-8 h-8 text-primary" />
+                     <h2 className="text-3xl font-black tracking-tighter">{result.certification_target} Strategy</h2>
+                  </div>
+                  
+                  <div className="grid grid-cols-2 gap-6 mb-8">
+                     <div className="p-6 bg-white/5 rounded-[2rem] border border-white/5 text-center">
+                        <span className="text-5xl font-black text-primary text-glow">{result.readiness_score}%</span>
+                        <p className="text-[10px] font-black uppercase tracking-widest description mt-3">Readiness</p>
+                     </div>
+                     <div className="p-6 bg-white/5 rounded-[2rem] border border-white/5 text-center flex flex-col items-center justify-center">
+                        <span className="text-lg font-black text-secondary uppercase tracking-widest text-center leading-none">{result.verification_status}</span>
+                        <p className="text-[10px] font-black uppercase tracking-widest description mt-3">Status</p>
+                     </div>
+                  </div>
+
+                  <div className="p-8 os-glass rounded-[2rem] border-secondary/20 shadow-inner flex-1">
+                     <p className="text-[10px] font-black uppercase tracking-widest text-secondary mb-4 flex items-center gap-2">
+                        <Command className="w-4 h-4" /> Strategic Reasoning Output
+                     </p>
+                     <p className="text-lg font-medium text-white/90 leading-relaxed italic">
+                        "{result.manager_insights?.summary}"
+                     </p>
+                     <div className="mt-8 pt-6 border-t border-white/10 flex flex-wrap gap-2">
+                        {['Vector DB', 'Azure OpenAI', 'Semantic Search', 'LangChain'].map(tag => (
+                           <span key={tag} className="px-3 py-1 bg-white/5 border border-white/10 rounded-lg text-[9px] font-black uppercase description">{tag}</span>
                         ))}
-                      </div>
-                   </div>
-                   <div className="mt-10 pt-6 border-t border-white/5">
-                      <div className="flex items-center gap-3 text-amber-500 bg-amber-500/5 p-3 rounded-2xl border border-amber-500/10">
-                        <Clock className="w-4 h-4" />
-                        <span className="text-[9px] font-black uppercase tracking-widest">Burnout Index: Moderate Risk</span>
-                      </div>
-                   </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-
-          <div className="mica p-10 rounded-[3.5rem] border-white/20 relative overflow-hidden shadow-2xl">
-             <div className="absolute inset-0 living-canvas opacity-5 pointer-events-none" />
-             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 relative z-10">
-                <div className="flex items-center gap-4">
-                  <div className="p-4 bg-emerald-500/10 rounded-2xl text-emerald-500 border border-emerald-500/20 shadow-lg shadow-emerald-500/10">
-                    <ShieldCheck className="w-7 h-7" />
+                     </div>
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-black dark:text-white tracking-tighter leading-none">Grounded Knowledge</h3>
-                    <p className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.2em] mt-2">Verified Skill Blueprints</p>
+               </motion.div>
+            ) : (
+               <div className="flex-1 flex flex-col items-center justify-center text-center">
+                  <div className="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center mb-8 border border-white/5">
+                     <BrainCircuit className="w-10 h-10 text-white/50" />
                   </div>
-                </div>
-                <button className="bg-[#02040a] dark:bg-white text-white dark:text-[#02040a] px-8 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest hover-lift shadow-2xl transition-all">
-                  Ingest Protocol
-                </button>
-             </div>
-
-             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-                {[
-                  { title: 'AZ-900 Implementation', source: 'Core Wiki', date: '2H AGO', color: 'blue' },
-                  { title: 'Cloud Security v2.4', source: 'SecOps', date: '5H AGO', color: 'red' },
-                  { title: 'Workload Balance 1.0', source: 'Systems', date: '1D AGO', color: 'indigo' },
-                ].map((doc, i) => (
-                  <motion.div 
-                    key={i} 
-                    whileHover={{ scale: 1.02 }}
-                    className="p-6 rounded-[2.5rem] bg-white/5 dark:bg-white/5 border border-white/10 hover:border-emerald-500/30 transition-all cursor-pointer group flex flex-col justify-between h-[200px] shadow-xl"
-                  >
-                    <div>
-                      <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-colors", `bg-${doc.color}-500/10 text-${doc.color}-500`)}>
-                        <LayoutDashboard className="w-5 h-5" />
-                      </div>
-                      <p className="font-black text-sm dark:text-white leading-tight group-hover:text-emerald-500 transition-colors">{doc.title}</p>
-                    </div>
-                    <div className="flex justify-between items-center mt-4">
-                      <p className="text-[8px] font-black text-foreground/30 uppercase tracking-tighter">{doc.source} • {doc.date}</p>
-                      <ChevronRight className="w-3 h-3 text-foreground/20 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </motion.div>
-                ))}
-             </div>
-          </div>
-        </div>
-
-        <div className="lg:col-span-4 space-y-8">
-           <motion.div 
-             initial={{ opacity: 0, x: 20 }}
-             animate={{ opacity: 1, x: 0 }}
-             className="mica p-10 rounded-[3.5rem] bg-[#02040a] text-white border-none shadow-[0_40px_80px_-20px_rgba(0,120,212,0.4)] relative overflow-hidden"
-           >
-              <div className="absolute inset-0 living-canvas opacity-20 pointer-events-none" />
-              <div className="relative z-10 space-y-8">
-                 <div className="flex items-center gap-3">
-                    <Zap className="w-6 h-6 text-primary fill-primary" />
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] opacity-60">OS Efficiency Score</span>
-                 </div>
-                 <div>
-                    <p className="text-8xl font-black tracking-tighter leading-none">92%</p>
-                    <div className="mt-4 flex items-center gap-2 text-emerald-400 font-black text-[10px] uppercase tracking-widest">
-                       <TrendingUp className="w-4 h-4" /> 15% Above Sector Base
-                    </div>
-                 </div>
-                 <p className="text-sm font-medium opacity-60 leading-relaxed italic">
-                    "Your workforce clusters are performing with high cognitive alignment. Suggesting immediate AZ-104 deployment for Squad Alpha."
-                 </p>
-                 <button className="w-full bg-white/10 backdrop-blur-xl border border-white/10 hover:bg-white/20 transition-all py-4 rounded-[2rem] text-[10px] font-black uppercase tracking-widest">
-                    Generate Neural Audit
-                 </button>
-              </div>
-           </motion.div>
-
-           <div className="mica p-10 rounded-[3.5rem] border-white/20 shadow-2xl">
-              <h4 className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.2em] mb-10 flex items-center gap-3">
-                <BarChart2 className="w-4 h-4 text-primary" /> Team Saturation
-              </h4>
-              <div className="space-y-8">
-                {[
-                  { name: 'Cloud Ops', cap: 82, color: 'bg-primary' },
-                  { name: 'Infrastructure', cap: 45, color: 'bg-emerald-500' },
-                  { name: 'AI/ML Core', cap: 91, color: 'bg-red-500' },
-                ].map((team, i) => (
-                  <div key={i} className="space-y-3">
-                    <div className="flex justify-between items-end px-1">
-                      <span className="text-xs font-black dark:text-white uppercase tracking-tighter">{team.name}</span>
-                      <span className={cn("text-xs font-black", team.cap > 80 ? 'text-red-500' : 'dark:text-slate-400')}>{team.cap}%</span>
-                    </div>
-                    <div className="h-1 w-full bg-foreground/5 dark:bg-white/5 rounded-full overflow-hidden">
-                      <motion.div 
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${team.cap}%` }}
-                        transition={{ duration: 1.5, delay: i * 0.1 }}
-                        className={cn("h-full rounded-full", team.color)} 
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-           </div>
-        </div>
+                  <h3 className="text-2xl font-black tracking-tighter description">Awaiting Input</h3>
+                  <p className="text-sm font-medium description mt-2 max-w-sm">Enter an objective in the query panel to initiate the multi-agent reasoning flow.</p>
+               </div>
+            )}
+         </div>
       </div>
     </div>
   );

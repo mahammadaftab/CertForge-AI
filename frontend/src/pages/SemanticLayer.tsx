@@ -16,7 +16,7 @@ const SemanticLayer: React.FC = () => {
       <div className="flex justify-between items-start">
         <div>
           <h1 className="text-5xl font-black tracking-tight dark:text-white">Fabric IQ</h1>
-          <p className="text-slate-500 mt-2 text-lg">Semantic workforce ontology and relational knowledge graph.</p>
+          <p className="description mt-2 text-lg">Semantic workforce ontology and relational knowledge graph.</p>
         </div>
         <div className="flex gap-4">
            <button className="mica px-6 py-3 rounded-2xl text-sm font-bold border-primary/20 text-primary flex items-center gap-2">
@@ -27,7 +27,7 @@ const SemanticLayer: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Semantic Graph Visualization Placeholder */}
-        <div className="lg:col-span-2 mica p-1 p-8 rounded-[3rem] min-h-[500px] relative overflow-hidden flex flex-col justify-center items-center bg-slate-900">
+        <div className="lg:col-span-2 mica p-1 p-8 rounded-[3rem] min-h-[500px] relative overflow-hidden flex flex-col justify-center items-center os-glass">
            <div className="absolute inset-0 opacity-20 canvas-grid"></div>
            <motion.div 
              animate={{ rotate: 360 }}
@@ -46,7 +46,7 @@ const SemanticLayer: React.FC = () => {
            </motion.div>
            <div className="mt-12 text-center relative z-10">
               <p className="text-white font-black text-2xl mb-2">Live Ontology Mapping</p>
-              <p className="text-slate-400 text-sm">Discovering hidden skill paths and team dependencies in real-time.</p>
+              <p className="description text-sm">Discovering hidden skill paths and team dependencies in real-time.</p>
            </div>
         </div>
 
@@ -70,7 +70,7 @@ const SemanticLayer: React.FC = () => {
                         <Zap className="w-3 h-3 text-red-500 fill-red-500" />
                       </div>
                       <p className="text-sm font-bold dark:text-white mb-1">{risk.type}</p>
-                      <p className="text-xs text-slate-500 font-medium">{risk.desc}</p>
+                      <p className="text-xs description font-medium">{risk.desc}</p>
                    </div>
                  ))}
               </div>
@@ -90,7 +90,7 @@ const SemanticLayer: React.FC = () => {
                    { label: 'Ontology Density', val: 88 },
                  ].map((item, i) => (
                     <div key={i} className="space-y-2">
-                       <div className="flex justify-between text-[10px] font-black uppercase text-slate-400">
+                       <div className="flex justify-between text-[10px] font-black uppercase description">
                           <span>{item.label}</span>
                           <span className="text-primary">{item.val}%</span>
                        </div>

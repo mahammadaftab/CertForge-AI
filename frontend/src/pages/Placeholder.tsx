@@ -8,7 +8,7 @@ const Placeholder: React.FC<{ title: string }> = ({ title }) => {
         <Construction className="w-12 h-12" />
       </div>
       <h1 className="text-4xl font-black tracking-tight dark:text-white">{title}</h1>
-      <p className="text-slate-500 max-w-md">
+      <p className="description max-w-md">
         We are currently building the high-fidelity {title.toLowerCase()} experience. 
         Stay tuned for Microsoft Copilot integration and advanced analytics.
       </p>

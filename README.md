@@ -61,7 +61,7 @@ docker-compose up --build
 ```bash
 cd backend
 python -m venv venv
-venv/bin/activate  # On Windows: venv\Scripts\activate
+venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```

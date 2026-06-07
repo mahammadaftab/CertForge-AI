@@ -32,71 +32,75 @@ const LoginPage: React.FC = () => {
       login(response.data.access_token, response.data.refresh_token);
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Invalid credentials');
+      setError(err.response?.data?.detail || 'System rejected credentials. Identity mismatch.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-950">
-      {/* Dynamic Background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] animate-pulse"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }}></div>
-        <div className="absolute inset-0 canvas-grid opacity-30"></div>
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0A0F1E]">
+      {/* OS Background - Living Canvas */}
+      <div className="absolute inset-0 living-canvas opacity-40" />
+      
+      {/* Cyber Particles */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[20%] left-[10%] w-[30%] h-[30%] bg-[#00E5FF]/20 rounded-full blur-[120px] animate-pulse" />
+        <div className="absolute bottom-[20%] right-[10%] w-[30%] h-[30%] bg-[#8B5CF6]/15 rounded-full blur-[120px] animate-pulse" style={{ animationDelay: '2s' }} />
       </div>
 
       <motion.div 
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: "spring", damping: 20, stiffness: 100 }}
-        className="relative z-10 w-full max-w-[440px] px-6"
+        initial={{ opacity: 0, scale: 0.9, filter: 'blur(20px)' }}
+        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+        transition={{ type: "spring", damping: 25, stiffness: 120 }}
+        className="relative z-10 w-full max-w-[480px] px-6"
       >
-        <div className="mica p-8 sm:p-12 rounded-[2.5rem] shadow-2xl border-white/20">
-          <div className="flex flex-col items-center text-center mb-10">
+        <div className="mica p-10 sm:p-14 rounded-[4rem] shadow-2xl border-[#00E5FF]/15 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[#00E5FF]/5 opacity-10 pointer-events-none" />
+          
+          <div className="flex flex-col items-center text-center mb-12 relative z-10">
             <motion.div 
-              whileHover={{ rotate: 180 }}
-              transition={{ duration: 0.6 }}
-              className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center text-white mb-6 shadow-xl shadow-primary/40"
+              whileHover={{ rotate: 180, scale: 1.1 }}
+              transition={{ duration: 0.8, type: "spring" }}
+              className="w-20 h-20 bg-[#00E5FF] rounded-3xl flex items-center justify-center text-[#0A0F1E] mb-8 shadow-[0_0_50px_rgba(0,229,255,0.5)] border-4 border-white/10"
             >
-              <Shield className="w-8 h-8" />
+              <Shield className="w-10 h-10" />
             </motion.div>
-            <h1 className="text-3xl font-black tracking-tight text-slate-900 dark:text-white mb-2">
-              Welcome Back
+            <h1 className="text-4xl font-black tracking-tighter text-white mb-3">
+              Initialize <span className="text-[#00E5FF] text-glow">Session.</span>
             </h1>
-            <p className="text-slate-500 text-sm font-medium flex items-center gap-2">
-              Secure access to CertForge AI <Sparkles className="w-3 h-3 text-primary" />
+            <p className="text-white/55 text-xs font-black uppercase tracking-[0.4em] flex items-center gap-3">
+               Neural ID Required <Sparkles className="w-3.5 h-3.5 text-[#00E5FF]" />
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div className="space-y-2">
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-400 ml-1">Work Email</label>
+          <form onSubmit={handleLogin} className="space-y-6 relative z-10">
+            <div className="space-y-2.5">
+              <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/55 ml-2">Secure Link / Email</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/30 group-focus-within:text-[#00E5FF] transition-colors duration-500" />
                 <input
                   type="email"
                   required
-                  className="w-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900 dark:text-white"
-                  placeholder="name@company.com"
+                  className="w-full bg-white/5 border-2 border-white/8 focus:border-[#00E5FF]/40 rounded-[2rem] py-4.5 pl-14 pr-6 outline-none transition-all duration-500 font-bold text-white shadow-inner"
+                  placeholder="admin@certforge.ai"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between items-center ml-1">
-                <label className="text-xs font-bold uppercase tracking-wider text-slate-400">Password</label>
-                <button type="button" className="text-xs font-bold text-primary hover:underline">Forgot?</button>
+            <div className="space-y-2.5">
+              <div className="flex justify-between items-center ml-2">
+                <label className="text-[10px] font-black uppercase tracking-[0.3em] text-white/55">Neural Key / Pass</label>
+                <button type="button" className="text-[10px] font-black text-[#00E5FF] hover:text-white uppercase tracking-widest transition-colors">Recover</button>
               </div>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/30 group-focus-within:text-[#00E5FF] transition-colors duration-500" />
                 <input
                   type="password"
                   required
-                  className="w-full bg-slate-100/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-2xl py-3.5 pl-12 pr-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-medium text-slate-900 dark:text-white"
+                  className="w-full bg-white/5 border-2 border-white/8 focus:border-[#00E5FF]/40 rounded-[2rem] py-4.5 pl-14 pr-6 outline-none transition-all duration-500 font-bold text-white shadow-inner"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -107,10 +111,10 @@ const LoginPage: React.FC = () => {
             <AnimatePresence>
               {error && (
                 <motion.div 
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="text-xs font-bold text-red-500 bg-red-500/10 p-3 rounded-xl border border-red-500/20 text-center"
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="text-[11px] font-black text-[#FF00AA] bg-[#FF00AA]/10 p-4 rounded-2xl border border-[#FF00AA]/20 text-center uppercase tracking-widest leading-relaxed shadow-lg"
                 >
                   {error}
                 </motion.div>
@@ -120,35 +124,35 @@ const LoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold py-4 rounded-2xl shadow-lg shadow-primary/30 transition-all flex items-center justify-center gap-2 group disabled:opacity-70"
+              className="w-full bg-[#00E5FF] hover:bg-[#00E5FF]/90 text-[#0A0F1E] font-black py-5 rounded-[2rem] shadow-[0_20px_50px_-10px_rgba(0,229,255,0.4)] transition-all duration-500 flex items-center justify-center gap-3 group disabled:opacity-50 uppercase tracking-[0.2em] text-xs"
             >
               {loading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  Continue <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  Establish Uplink <ArrowRight className="w-4 h-4 group-hover:translate-x-2 transition-transform duration-500" />
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-slate-200 dark:border-slate-800 text-center">
-            <p className="text-sm text-slate-500 font-medium">
-              New to CertForge?{' '}
+          <div className="mt-12 pt-10 border-t border-white/8 text-center relative z-10">
+            <p className="text-[10px] text-white/40 font-black uppercase tracking-[0.2em]">
+              Unauthorized Access Prohibited.{' '}
               <button 
                 onClick={() => navigate('/register')}
-                className="text-primary font-bold hover:underline"
+                className="text-[#00E5FF] hover:text-white transition-colors ml-1"
               >
-                Join the workforce
+                Request Enrollment
               </button>
             </p>
           </div>
         </div>
 
-        <div className="mt-8 flex justify-center gap-6 text-slate-500 font-bold text-[10px] uppercase tracking-[0.2em]">
-          <span className="cursor-pointer hover:text-white transition-colors">Security</span>
-          <span className="cursor-pointer hover:text-white transition-colors">Terms</span>
-          <span className="cursor-pointer hover:text-white transition-colors">Infrastructure</span>
+        <div className="mt-10 flex justify-center gap-8 text-white/25 font-black text-[9px] uppercase tracking-[0.4em]">
+          <span className="cursor-pointer hover:text-[#00E5FF] transition-colors">Encryption</span>
+          <span className="cursor-pointer hover:text-[#00E5FF] transition-colors">Foundry-EULA</span>
+          <span className="cursor-pointer hover:text-[#00E5FF] transition-colors">V-Protocol</span>
         </div>
       </motion.div>
     </div>

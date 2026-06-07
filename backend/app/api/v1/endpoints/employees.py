@@ -3,11 +3,12 @@ from fastapi import APIRouter, Depends
 from app.api import deps
 from app.models.employee import Employee
 from app.models.readiness_score import ReadinessScore
+from app.models.user import UserRole
 
 router = APIRouter()
 
 @router.get("/")
-async def list_employees(current_user: Any = Depends(deps.get_current_active_user)):
+async def list_employees(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
     """
     Retrieves all employees from MongoDB, including linked user data and real scores.
     """

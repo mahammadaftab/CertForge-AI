@@ -21,8 +21,8 @@ export default {
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#0078d4", // Microsoft Blue
-          foreground: "#ffffff",
+          DEFAULT: "#00E5FF", // Electric Cyan
+          foreground: "#0A0F1E",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
@@ -35,6 +35,9 @@ export default {
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
+        },
+        highlight: {
+          DEFAULT: "#7CFF6B", // Neon Green
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",

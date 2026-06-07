@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Trophy, 
   BrainCircuit, 
@@ -21,7 +21,6 @@ const AssessmentCenter: React.FC = () => {
   const [step, setStep] = useState<'intro' | 'exam' | 'results'>('intro');
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [questions, setQuestions] = useState<any[]>([]);
-  const [capstone, setCapstone] = useState<any>(null);
   const [userAnswers, setUserAnswers] = useState<Record<string, string>>({});
   const [evaluation, setEvaluation] = useState<any>(null);
   const [loading, setLoading] = useState(false);
@@ -32,7 +31,6 @@ const AssessmentCenter: React.FC = () => {
     try {
       const res = await api.get('/assessment/generate?certification=AZ-900&difficulty=Adaptive&count=5');
       setQuestions(res.data.questions);
-      setCapstone(res.data.capstone_scenario);
       setStep('exam');
     } catch (err) {
       console.error("Failed to generate assessment", err);
@@ -70,7 +68,7 @@ const AssessmentCenter: React.FC = () => {
           <h1 className="text-5xl font-black tracking-tight dark:text-white flex items-center gap-4">
             Assessment Center <Sparkles className="w-8 h-8 text-primary animate-pulse" />
           </h1>
-          <p className="text-foreground/40 mt-2 text-lg italic">AI-generated adaptive evaluations for workforce readiness.</p>
+          <p className="description mt-2 text-lg italic font-medium">AI-generated adaptive evaluations for workforce readiness.</p>
         </div>
         <div className="mica px-6 py-3 rounded-2xl flex items-center gap-3 border-white/20 shadow-xl">
            <Timer className="w-5 h-5 text-primary" />
@@ -88,12 +86,12 @@ const AssessmentCenter: React.FC = () => {
             className="mica p-16 rounded-[3rem] text-center space-y-10 relative overflow-hidden shadow-2xl border-white/10"
           >
             <div className="absolute inset-0 living-canvas opacity-5 pointer-events-none" />
-            <div className="w-24 h-24 bg-primary rounded-3xl mx-auto flex items-center justify-center text-white shadow-2xl shadow-primary/40 rotate-3">
+            <div className="w-24 h-24 bg-primary rounded-3xl mx-auto flex items-center justify-center text-white font-bold shadow-2xl shadow-primary/40 rotate-3">
               <BrainCircuit className="w-12 h-12" />
             </div>
             <div className="space-y-4">
               <h2 className="text-5xl font-black dark:text-white tracking-tighter leading-none">Initialize AZ-900 Cycle</h2>
-              <p className="text-foreground/40 max-w-xl mx-auto font-medium text-lg italic">
+              <p className="description max-w-xl mx-auto font-medium text-lg italic">
                 A custom assessment environment is ready to be synthesized from your neural fingerprints and workforce logs.
               </p>
             </div>
@@ -104,7 +102,7 @@ const AssessmentCenter: React.FC = () => {
                  { label: 'Neural Flux', val: 'Dynamic' },
                ].map((item, i) => (
                  <div key={i} className="mica p-6 rounded-[2rem] border-white/10 shadow-xl">
-                    <p className="text-[10px] font-black uppercase text-foreground/30 mb-2 tracking-[0.2em]">{item.label}</p>
+                    <p className="text-[10px] font-black uppercase description mb-2 tracking-[0.2em]">{item.label}</p>
                     <p className="text-lg font-black dark:text-white leading-none">{item.val}</p>
                  </div>
                ))}
@@ -112,7 +110,7 @@ const AssessmentCenter: React.FC = () => {
             <button 
               onClick={startAssessment}
               disabled={loading}
-              className="bg-primary text-white px-12 py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto"
+              className="bg-primary text-white font-bold px-12 py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-primary/30 hover:scale-105 active:scale-95 transition-all flex items-center gap-3 mx-auto"
             >
               {loading ? <RefreshCcw className="w-4 h-4 animate-spin" /> : <Zap className="w-4 h-4" />}
               Deploy AI Orchestrator
@@ -154,15 +152,15 @@ const AssessmentCenter: React.FC = () => {
                       className={cn(
                         "w-full text-left p-8 rounded-[2.5rem] border-2 transition-all duration-500 group flex items-center gap-6",
                         userAnswers[questions[currentQuestion].id] === opt 
-                          ? "bg-primary text-white border-primary shadow-xl shadow-primary/20 scale-[1.01]" 
+                          ? "bg-primary text-white font-bold border-primary shadow-xl shadow-primary/20 scale-[1.01]" 
                           : "bg-white/5 dark:bg-white/5 border-transparent hover:border-primary/40"
                       )}
                     >
                       <div className={cn(
                         "w-10 h-10 rounded-2xl border-2 flex items-center justify-center font-black text-sm transition-all duration-500",
                         userAnswers[questions[currentQuestion].id] === opt 
-                          ? "bg-white/20 border-white" 
-                          : "border-foreground/10 text-foreground/30 group-hover:border-primary group-hover:text-primary"
+                          ? "os-glass opacity-80 border-slate-950" 
+                          : "border-foreground/10 description group-hover:border-primary group-hover:text-primary"
                       )}>
                         {String.fromCharCode(65 + i)}
                       </div>
@@ -175,13 +173,13 @@ const AssessmentCenter: React.FC = () => {
                   <button 
                     disabled={currentQuestion === 0}
                     onClick={() => setCurrentQuestion(prev => prev - 1)}
-                    className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-foreground/20 hover:text-foreground dark:hover:text-white disabled:opacity-20 transition-colors"
+                    className="flex items-center gap-3 text-xs font-black uppercase tracking-widest text-white/50 hover:text-foreground dark:hover:text-white disabled:opacity-20 transition-colors"
                   >
                     <ChevronLeft className="w-5 h-5" /> Previous Core
                   </button>
                   <button 
                     onClick={currentQuestion < questions.length - 1 ? () => setCurrentQuestion(prev => prev + 1) : submitAssessment}
-                    className="flex items-center gap-4 px-12 py-5 bg-[#02040a] dark:bg-white text-white dark:text-[#02040a] rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl hover:scale-105 active:scale-95 transition-all"
+                    className="flex items-center gap-4 px-12 py-5 bg-[#010204] dark:bg-white text-white dark:text-[#010204] rounded-[2rem] font-black uppercase tracking-[0.2em] text-[10px] shadow-2xl hover:scale-105 active:scale-95 transition-all"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (currentQuestion < questions.length - 1 ? 'Next Sequence' : 'Commit Neural Logic')}
                     <ChevronRight className="w-4 h-4" />
@@ -201,7 +199,7 @@ const AssessmentCenter: React.FC = () => {
                         </div>
                         <div>
                            <p className="text-xs font-black dark:text-white uppercase tracking-widest">Adaptive Flux</p>
-                           <p className="text-[10px] text-foreground/40 mt-1 leading-relaxed">Complexity is adjusting based on response velocity.</p>
+                           <p className="text-[10px] description mt-1 leading-relaxed font-medium">Complexity is adjusting based on response velocity.</p>
                         </div>
                      </div>
                      <div className="flex gap-5">
@@ -210,17 +208,17 @@ const AssessmentCenter: React.FC = () => {
                         </div>
                         <div>
                            <p className="text-xs font-black dark:text-white uppercase tracking-widest">Grounded Sync</p>
-                           <p className="text-[10px] text-foreground/40 mt-1 leading-relaxed">Foundry IQ is verifying domain logic in real-time.</p>
+                           <p className="text-[10px] description mt-1 leading-relaxed font-medium">Foundry IQ is verifying domain logic in real-time.</p>
                         </div>
                      </div>
                   </div>
                </div>
 
-               <div className="mica p-10 rounded-[3rem] bg-[#02040a] text-white border-none relative overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,120,212,0.4)]">
+               <div className="mica p-10 rounded-[3rem] bg-[#010204] text-white border-none relative overflow-hidden shadow-[0_30px_60px_-15px_rgba(0,242,255,0.4)]">
                   <div className="absolute top-[-30%] left-[-20%] w-[120%] h-[120%] bg-primary/20 rounded-full blur-[80px] animate-pulse" />
                   <div className="relative z-10">
                      <h4 className="text-[10px] font-black mb-6 uppercase tracking-[0.4em] text-primary">Neural Proctor</h4>
-                     <p className="text-lg font-medium leading-[1.4] opacity-80 italic tracking-tight">
+                     <p className="text-lg font-medium leading-[1.4] opacity-80 italic tracking-tight font-bold">
                         "Your cognitive alignment with Microsoft compute patterns is high. Focus on subscription hierarchies in the next stage."
                      </p>
                   </div>
@@ -236,7 +234,7 @@ const AssessmentCenter: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-10"
           >
-            <div className="mica p-16 rounded-[4rem] bg-[#02040a] text-white border-none shadow-[0_50px_100px_-20px_rgba(0,120,212,0.5)] relative overflow-hidden">
+            <div className="mica p-16 rounded-[4rem] bg-[#010204] text-white border-none shadow-[0_50px_100px_-20px_rgba(0,242,255,0.5)] relative overflow-hidden">
                <div className="absolute inset-0 living-canvas opacity-20 pointer-events-none" />
                <div className="relative z-10 flex flex-col items-center text-center space-y-10">
                   <div className="w-28 h-28 bg-white/10 backdrop-blur-3xl rounded-[2.5rem] flex items-center justify-center border border-white/20 shadow-2xl rotate-3">
@@ -265,16 +263,16 @@ const AssessmentCenter: React.FC = () => {
                   <div className="space-y-10">
                      {[
                        { label: 'Compute Engine', val: 95, color: 'bg-emerald-500' },
-                       { label: 'SecOps Logic', val: 78, color: 'bg-blue-500' },
-                       { label: 'Hierarchy Scopes', val: 62, color: 'bg-amber-500' },
-                       { label: 'Cost Modulation', val: 91, color: 'bg-primary' },
+                       { label: 'SecOps Logic', val: 78, color: 'bg-primary' },
+                       { label: 'Hierarchy Scopes', val: 62, color: 'bg-secondary' },
+                       { label: 'Cost Modulation', val: 91, color: 'bg-accent' },
                      ].map((skill, i) => (
                        <div key={i} className="space-y-4">
                           <div className="flex justify-between items-end px-1">
                             <span className="text-[10px] font-black dark:text-white uppercase tracking-widest">{skill.label}</span>
                             <span className="text-sm font-black text-primary">{skill.val}%</span>
                           </div>
-                          <div className="h-1.5 w-full bg-foreground/5 dark:bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-1.5 w-full bg-foreground/5 dark:bg-white/5 rounded-full overflow-hidden shadow-inner">
                              <motion.div 
                                initial={{ width: 0 }}
                                animate={{ width: `${skill.val}%` }}
@@ -293,19 +291,19 @@ const AssessmentCenter: React.FC = () => {
                     <div className="space-y-8">
                       <div className="p-8 rounded-[2.5rem] bg-emerald-500/5 border border-emerald-500/10 hover:bg-emerald-500/10 transition-all group">
                         <p className="text-[9px] font-black text-emerald-600 uppercase tracking-widest mb-3">Core Strength</p>
-                        <p className="text-md font-medium text-foreground/70 dark:text-slate-300 leading-relaxed italic">
+                        <p className="text-md font-medium text-foreground/70 dark:description leading-relaxed italic font-bold">
                            "Superior cognitive alignment with serverless orchestration patterns. Real-time decision flux was within optimal range."
                         </p>
                       </div>
-                      <div className="p-8 rounded-[2.5rem] bg-amber-500/5 border border-amber-500/10 hover:bg-amber-500/10 transition-all group">
-                        <p className="text-[9px] font-black text-amber-600 uppercase tracking-widest mb-3">Refinement Area</p>
-                        <p className="text-md font-medium text-foreground/70 dark:text-slate-300 leading-relaxed italic">
+                      <div className="p-8 rounded-[2.5rem] bg-secondary/5 border border-secondary/10 hover:bg-secondary/10 transition-all group">
+                        <p className="text-[9px] font-black text-secondary uppercase tracking-widest mb-3">Refinement Area</p>
+                        <p className="text-md font-medium text-foreground/70 dark:description leading-relaxed italic font-bold">
                            "System detected slight latency in RBAC scope inheritance logic. Suggesting one 20-minute focus cycle in Governance."
                         </p>
                       </div>
                     </div>
                   </div>
-                  <button className="w-full mt-12 py-5 bg-[#02040a] dark:bg-white text-white dark:text-[#02040a] rounded-[2rem] font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl">
+                  <button className="w-full mt-12 py-5 bg-[#010204] dark:bg-white text-white dark:text-[#010204] rounded-[2rem] font-black uppercase tracking-widest text-[11px] hover:scale-[1.02] active:scale-95 transition-all shadow-2xl">
                     Push to Global Learning Path
                   </button>
                </div>
