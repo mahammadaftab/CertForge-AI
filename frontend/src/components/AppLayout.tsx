@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Users, 
@@ -7,28 +7,30 @@ import {
   Award, 
   BarChart3, 
   FileText, 
-  Settings, 
   LogOut,
-  Bell,
-  Search,
-  Command,
-  HelpCircle,
   MessageSquare,
   Zap,
-  Sparkles
+  Sparkles,
+  ChevronRight,
+  Cpu,
+  Terminal
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 import { useAuth } from '../context/AuthContext';
+import api from '../lib/api';
+import CommandPalette from './CommandPalette';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: Users, label: 'Employees', path: '/employees' },
-  { icon: UserCircle, label: 'Teams', path: '/teams' },
-  { icon: Award, label: 'Certifications', path: '/certifications' },
-  { icon: BarChart3, label: 'Analytics', path: '/analytics' },
-  { icon: FileText, label: 'Assessments', path: '/assessments' },
-  { icon: Zap, label: 'Success Predictor', path: '/predictor' },
+  { icon: LayoutDashboard, label: 'Mission Control', path: '/dashboard' },
+  { icon: Terminal, label: 'Command Center', path: '/command-center' },
+  { icon: Users, label: 'Workforce', path: '/employees' },
+  { icon: UserCircle, label: 'Units', path: '/teams' },
+  { icon: Award, label: 'Credentials', path: '/certifications' },
+  { icon: BarChart3, label: 'Foundry IQ', path: '/intelligence' },
+  { icon: FileText, label: 'Reports', path: '/reports' },
+  { icon: Zap, label: 'Predictor', path: '/predictor' },
+  { icon: Sparkles, label: 'Assessments', path: '/assessments' },
 ];
 
 const SidebarItem = ({ icon: Icon, label, path }: { icon: any, label: string, path: string }) => (
@@ -36,24 +38,24 @@ const SidebarItem = ({ icon: Icon, label, path }: { icon: any, label: string, pa
     to={path}
     className={({ isActive }) =>
       cn(
-        "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 group relative",
+        "flex items-center gap-4 px-6 py-4 rounded-[1.5rem] transition-all duration-700 group relative overflow-hidden",
         isActive 
-          ? "bg-primary text-white shadow-xl shadow-primary/25 z-10" 
-          : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50"
+          ? "text-white shadow-[0_15px_45px_-10px_rgba(0,242,255,0.4)] scale-[1.03] z-10 font-bold" 
+          : "text-foreground/50 hover:text-primary dark:hover:text-white hover:bg-white/5"
       )
     }
   >
     {({ isActive }) => (
       <>
-        <Icon className="w-5 h-5 shrink-0" />
-        <span className="font-bold text-sm tracking-tight">{label}</span>
-        {/* Active indicator dot */}
         {isActive && (
           <motion.div 
-            layoutId="sidebar-active"
-            className="absolute left-[-12px] w-1 h-6 bg-primary rounded-r-full"
+            layoutId="active-pill"
+            className="absolute inset-0 cyber-gradient -z-10"
+            transition={{ type: 'spring', stiffness: 300, damping: 35 }}
           />
         )}
+        <Icon className={cn("w-5 h-5 shrink-0 transition-all duration-700", isActive ? "text-white scale-110 drop-shadow-md" : "text-foreground/30 group-hover:text-primary group-hover:scale-110")} />
+        <span className="text-[12px] font-black uppercase tracking-[0.25em] whitespace-nowrap">{label}</span>
       </>
     )}
   </NavLink>
@@ -61,133 +63,160 @@ const SidebarItem = ({ icon: Icon, label, path }: { icon: any, label: string, pa
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
+  const location = useLocation();
   const [isCopilotOpen, setIsCopilotOpen] = React.useState(false);
+  const [copilotInput, setCopilotInput] = React.useState('');
+  const [copilotLoading, setCopilotLoading] = React.useState(false);
+  const [copilotResponse, setCopilotResponse] = React.useState<any>(null);
+
+  const handleCopilotSubmit = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && copilotInput.trim()) {
+      setCopilotLoading(true);
+      try {
+        const res = await api.post('/intelligence/orchestrate', {
+          employee_id: user?.id || 'demo-user',
+          certification_target: copilotInput,
+          employee_skills: ['Python', 'Azure']
+        });
+        setCopilotResponse(res.data);
+      } catch (err) {
+        console.error("Copilot orchestration failed", err);
+      } finally {
+        setCopilotLoading(false);
+        setCopilotInput('');
+      }
+    }
+  };
 
   return (
-    <div className="flex h-screen bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans">
-      {/* Sidebar */}
+    <div className="flex h-screen bg-background dark:bg-[#010204] overflow-hidden font-sans selection:bg-primary/30 relative">
+      <div className="absolute inset-0 living-canvas -z-0 pointer-events-none opacity-50" />
+      <CommandPalette />
+
       <motion.aside 
         initial={{ x: -20, opacity: 0 }}
         animate={{ x: 0, opacity: 1 }}
-        className="w-72 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col z-20 relative"
+        className="w-85 mica m-6 rounded-[3.5rem] flex flex-col z-20 relative shadow-2xl border-white/10 dark:border-white/5"
       >
-        <div className="p-8 flex items-center gap-4">
-          <div className="w-10 h-10 bg-gradient-to-br from-primary to-blue-600 rounded-xl flex items-center justify-center text-white font-black shadow-lg shadow-primary/20 transform -rotate-3">
-            CF
-          </div>
-          <div>
-            <span className="text-xl font-black tracking-tighter dark:text-white block leading-none">CertForge</span>
-            <span className="text-[10px] font-bold text-primary tracking-widest uppercase">Intelligence</span>
+        <div className="p-12 flex flex-col gap-2">
+          <div className="flex items-center gap-5 group cursor-pointer" onClick={() => window.location.href = '/'}>
+             <div className="w-14 h-14 bg-foreground dark:bg-white rounded-2xl flex items-center justify-center shadow-2xl rotate-3 group-hover:rotate-0 transition-all duration-700">
+                <Cpu className="w-7 h-7 text-background dark:text-[#010204]" />
+             </div>
+             <div>
+                <h1 className="text-3xl font-black tracking-tighter dark:text-white leading-none">CertForge</h1>
+                <p className="text-[11px] font-black text-primary uppercase tracking-[0.4em] mt-2 opacity-90">Intelligence OS</p>
+             </div>
           </div>
         </div>
 
-        <div className="px-6 py-4 flex-1 space-y-8 overflow-y-auto no-scrollbar">
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase px-3 mb-4 tracking-[0.2em]">Navigation</p>
-            <div className="space-y-1">
+        <div className="px-8 py-4 flex-1 space-y-12 overflow-y-auto no-scrollbar">
+          <div className="space-y-2">
+            <p className="text-[10px] font-black text-foreground/40 uppercase px-6 mb-6 tracking-[0.35em] opacity-70">Core Protocols</p>
+            <div className="space-y-2">
               {menuItems.map((item) => (
                 <SidebarItem key={item.path} {...item} />
               ))}
             </div>
           </div>
 
-          <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase px-3 mb-4 tracking-[0.2em]">Support</p>
-            <div className="space-y-1">
-              <SidebarItem icon={HelpCircle} label="Help Center" path="/help" />
-              <SidebarItem icon={Settings} label="Settings" path="/settings" />
-            </div>
+          <div className="mx-6 p-6 rounded-[2.5rem] bg-primary/5 border border-primary/10 group hover:border-primary/30 transition-all shadow-inner">
+             <div className="flex items-center gap-4 mb-5 px-1">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_15px_rgba(16,185,129,0.7)]" />
+                <span className="text-[11px] font-black uppercase tracking-widest text-foreground/60">Uplink Stable</span>
+             </div>
+             <div className="space-y-4">
+                {[
+                  { label: 'Neural Latency', val: '12ms' },
+                  { label: 'Cluster Uptime', val: '99.99%' },
+                ].map((stat, i) => (
+                  <div key={i} className="flex justify-between items-center px-1">
+                    <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-tighter">{stat.label}</span>
+                    <span className="text-[11px] font-black text-primary dark:text-white">{stat.val}</span>
+                  </div>
+                ))}
+             </div>
           </div>
         </div>
 
-        <div className="p-6">
-          <div className="acrylic p-4 rounded-3xl border border-white/20 dark:border-slate-800 mb-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-600">
-                <Sparkles className="w-4 h-4" />
-              </div>
-              <span className="text-xs font-black dark:text-white">AI Assistant</span>
-            </div>
-            <p className="text-[10px] text-slate-500 font-bold mb-3">Get real-time insights for your team's readiness.</p>
-            <button 
-              onClick={() => setIsCopilotOpen(true)}
-              className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-white py-2 rounded-xl text-[10px] font-black uppercase tracking-wider hover:opacity-90 transition-opacity"
-            >
-              Ask Copilot
-            </button>
+        <div className="p-10 space-y-6">
+          <div className="mica p-6 rounded-[2rem] border-primary/20 group cursor-pointer hover:bg-primary/10 transition-all shadow-lg">
+             <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                   <div className="p-2.5 bg-primary/20 rounded-xl text-primary"><Sparkles className="w-5 h-5 animate-pulse" /></div>
+                   <span className="text-[11px] font-black uppercase dark:text-white tracking-widest">Cognitive Sync</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-foreground/40 group-hover:translate-x-1 transition-transform" />
+             </div>
           </div>
 
           <button 
             onClick={logout}
-            className="flex items-center gap-3 px-3 py-3 w-full rounded-xl text-slate-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20 transition-all duration-300"
+            className="flex items-center gap-4 px-6 py-5 w-full rounded-2xl text-foreground/50 hover:bg-red-500/10 hover:text-red-500 transition-all duration-700 font-black text-[12px] uppercase tracking-[0.2em] border border-transparent hover:border-red-500/20"
           >
             <LogOut className="w-5 h-5" />
-            <span className="font-bold text-sm tracking-tight">Sign Out</span>
+            <span>Terminate Interface</span>
           </button>
         </div>
       </motion.aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden relative">
-        {/* Top Header */}
-        <header className="h-20 border-b border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/60 backdrop-blur-xl flex items-center justify-between px-10 z-10">
-          <div className="flex items-center gap-6 w-[500px]">
-            <div className="relative w-full group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-primary transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search metrics, employees, or certifications..." 
-                className="w-full bg-slate-100 dark:bg-slate-800/50 border-none rounded-2xl py-2.5 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-              />
-              <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
-                <Command className="w-3 h-3 text-slate-400" />
-                <span className="text-[10px] font-black text-slate-400">K</span>
-              </div>
-            </div>
+      <div className="flex-1 flex flex-col overflow-hidden relative p-6 pl-0">
+        <header className="h-24 flex items-center justify-between px-12 z-10">
+          <div className="flex items-center gap-6">
+             <div className="flex items-center gap-3 px-6 py-3 mica rounded-2xl border-white/20 shadow-2xl">
+                <span className="text-[11px] font-black text-foreground/40 uppercase tracking-widest">Protocol</span>
+                <ChevronRight className="w-4 h-4 text-foreground/20" />
+                <span className="text-[11px] font-black text-primary uppercase tracking-[0.3em] text-neon">{location.pathname.split('/')[1] || 'Foundry'}</span>
+             </div>
           </div>
 
-          <div className="flex items-center gap-6">
-            <button className="relative p-2.5 text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800 rounded-2xl transition-all">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white dark:border-slate-900"></span>
-            </button>
-            <div className="h-10 w-[1px] bg-slate-200 dark:bg-slate-800"></div>
-            <div className="flex items-center gap-4 cursor-pointer group">
-              <div className="text-right hidden sm:block">
-                <p className="text-sm font-black dark:text-white leading-none group-hover:text-primary transition-colors">{user?.full_name || 'System User'}</p>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">{user?.role || 'Member'}</p>
+          <div className="flex items-center gap-8">
+            <div className="mica flex items-center gap-4 px-6 py-3 rounded-2xl border-white/10 cursor-pointer group shadow-2xl hover:border-primary/40 transition-all">
+               <span className="text-[11px] font-black text-foreground/40 group-hover:text-foreground dark:group-hover:text-white transition-colors uppercase tracking-[0.25em]">Command ⌘K</span>
+            </div>
+            <div className="h-12 w-[1px] bg-foreground/5"></div>
+            <div className="flex items-center gap-5 group cursor-pointer">
+              <div className="text-right hidden lg:block">
+                <p className="text-sm font-black dark:text-white uppercase tracking-widest leading-none group-hover:text-primary transition-all duration-500">{user?.full_name || 'Neural Root'}</p>
+                <p className="text-[10px] font-bold text-primary uppercase tracking-[0.4em] mt-2 opacity-80">Security Lvl 9</p>
               </div>
-              <div className="w-12 h-12 bg-gradient-to-tr from-primary to-blue-400 rounded-2xl flex items-center justify-center text-white font-black text-lg shadow-xl shadow-primary/20 transform group-hover:rotate-6 transition-transform">
-                {user?.full_name?.charAt(0) || 'U'}
-              </div>
+              <motion.div 
+                whileHover={{ scale: 1.15, rotate: 8 }}
+                className="w-14 h-14 rounded-2xl cyber-gradient flex items-center justify-center text-white font-black text-xl shadow-[0_0_30px_rgba(0,242,255,0.3)] border-2 border-white/30"
+              >
+                {user?.full_name?.charAt(0) || 'Ω'}
+              </motion.div>
             </div>
           </div>
         </header>
 
-        {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-10 bg-slate-50 dark:bg-slate-950 canvas-grid relative">
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, ease: [0.33, 1, 0.68, 1] }}
-          >
-            {children}
-          </motion.div>
+        <main className="flex-1 overflow-y-auto p-12 relative no-scrollbar">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ y: 30, opacity: 0, filter: 'blur(15px)' }}
+              animate={{ y: 0, opacity: 1, filter: 'blur(0px)' }}
+              exit={{ y: -30, opacity: 0, filter: 'blur(15px)' }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
 
-          {/* Floating Action Button (Copilot) */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => setIsCopilotOpen(true)}
-            className="fixed bottom-10 right-10 w-16 h-16 bg-primary rounded-3xl shadow-2xl shadow-primary/40 flex items-center justify-center text-white z-50 group overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <Sparkles className="w-7 h-7" />
-          </motion.button>
+          <div className="fixed bottom-16 right-16 flex flex-col items-end gap-8 z-50">
+             <motion.button
+               whileHover={{ scale: 1.15, rotate: -8 }}
+               whileTap={{ scale: 0.9 }}
+               onClick={() => setIsCopilotOpen(true)}
+               className="w-24 h-24 bg-slate-950 dark:bg-white rounded-[3.5rem] shadow-[0_30px_80px_-15px_rgba(0,0,0,0.6)] dark:shadow-[0_30px_80px_-15px_rgba(0,242,255,0.4)] flex items-center justify-center text-white dark:text-[#010204] relative group overflow-hidden border-4 border-white/20 dark:border-slate-900/10 pointer-events-auto"
+             >
+               <div className="absolute inset-0 cyber-gradient opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+               <Sparkles className="w-11 h-11 relative z-10 group-hover:text-white transition-colors duration-500 shadow-glow" />
+             </motion.button>
+          </div>
         </main>
       </div>
 
-      {/* Copilot Drawer (Placeholder) */}
       <AnimatePresence>
         {isCopilotOpen && (
           <>
@@ -196,51 +225,108 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsCopilotOpen(false)}
-              className="fixed inset-0 bg-black/20 backdrop-blur-sm z-[60]"
+              className="fixed inset-0 bg-slate-950/50 backdrop-blur-[6px] z-[60]"
             />
             <motion.div 
-              initial={{ x: '100%' }}
-              animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 right-0 h-full w-[450px] mica shadow-[-20px_0_50px_rgba(0,0,0,0.1)] z-[70] p-10 flex flex-col border-l border-white/20"
+              initial={{ x: '100%', filter: 'blur(30px)' }}
+              animate={{ x: 0, filter: 'blur(0px)' }}
+              exit={{ x: '100%', filter: 'blur(30px)' }}
+              transition={{ type: "spring", damping: 35, stiffness: 200 }}
+              className="fixed top-8 right-8 bottom-8 w-[600px] mica shadow-[-60px_0_150px_-30px_rgba(0,0,0,0.4)] z-[70] p-16 flex flex-col rounded-[4rem] border-white/30"
             >
-              <div className="flex justify-between items-center mb-10">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
-                    <Sparkles className="w-6 h-6" />
+              <div className="flex justify-between items-center mb-16">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 cyber-gradient rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-primary/40">
+                    <Sparkles className="w-10 h-10" />
                   </div>
-                  <h2 className="text-2xl font-black tracking-tight dark:text-white">CertForge Copilot</h2>
+                  <div>
+                    <h2 className="text-4xl font-black tracking-tighter dark:text-white">Foundry AI</h2>
+                    <p className="text-[12px] font-black text-primary uppercase tracking-[0.4em] mt-1.5 opacity-90">Logic Processor</p>
+                  </div>
                 </div>
-                <button onClick={() => setIsCopilotOpen(false)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-colors">
-                  <LayoutDashboard className="w-5 h-5 text-slate-400 rotate-45" />
+                <button onClick={() => setIsCopilotOpen(false)} className="p-4 hover:bg-white/10 rounded-2xl transition-all border border-transparent hover:border-white/20">
+                  <LayoutDashboard className="w-7 h-7 text-foreground/40 rotate-45" />
                 </button>
               </div>
 
-              <div className="flex-1 space-y-6 overflow-y-auto no-scrollbar">
-                <div className="bg-primary/10 border border-primary/20 p-5 rounded-3xl">
-                  <p className="text-sm font-bold text-primary mb-2">👋 How can I help you today?</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                    I can analyze team readiness scores, suggest learning paths, or help you generate new assessments.
+              <div className="flex-1 space-y-10 overflow-y-auto no-scrollbar pr-6">
+                <div className="mica p-10 rounded-[3rem] border-primary/30 bg-primary/5 shadow-2xl relative overflow-hidden">
+                  <div className="absolute inset-0 cyber-gradient opacity-[0.03]" />
+                  <p className="text-xs font-black text-primary uppercase tracking-[0.3em] mb-5 flex items-center gap-3 relative z-10">
+                     <MessageSquare className="w-5 h-5" /> Intelligence Uplink
+                  </p>
+                  <p className="text-lg font-bold dark:text-slate-200 leading-relaxed italic text-neon relative z-10">
+                    Neural pathways are synchronized. Cluster efficiency has reached critical mass. Requesting deployment protocol for Squad Omega?
                   </p>
                 </div>
 
-                <div className="space-y-3">
-                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest px-1">Quick Suggestions</p>
-                  {["Summarize Cloud Ops readiness", "Identify skill gaps in AI/ML team", "Suggest AZ-900 study plan"].map((text, i) => (
-                    <button key={i} className="w-full text-left p-4 rounded-2xl bg-white/50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 border border-transparent hover:border-primary/20 transition-all text-sm font-medium dark:text-slate-300">
-                      {text}
+                {copilotLoading && (
+                  <div className="flex flex-col items-center justify-center py-16 gap-6">
+                     <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin shadow-2xl" />
+                     <span className="text-[12px] font-black uppercase tracking-[0.4em] text-primary animate-pulse">Orchestrating Logic Nodes...</span>
+                  </div>
+                )}
+
+                {copilotResponse && !copilotLoading && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mica p-12 rounded-[3.5rem] border-emerald-500/30 bg-emerald-500/5 relative overflow-hidden shadow-[0_40px_80px_-20px_rgba(16,185,129,0.2)]"
+                  >
+                    <div className="absolute top-0 right-0 p-8 opacity-10"><Sparkles className="w-32 h-32 text-emerald-500" /></div>
+                    <p className="text-[11px] font-black text-emerald-600 uppercase tracking-[0.25em] mb-8">Protocol Generated</p>
+                    <div className="space-y-8 relative z-10">
+                      <div>
+                        <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-3">Blueprint Objective</p>
+                        <p className="text-3xl font-black dark:text-white tracking-tighter leading-none">{copilotResponse.certification_target}</p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-12">
+                         <div>
+                            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-3">Readiness</p>
+                            <p className="text-6xl font-black text-primary tracking-tighter">{copilotResponse.readiness_score}%</p>
+                         </div>
+                         <div>
+                            <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-3">Verification</p>
+                            <p className="text-3xl font-black dark:text-white uppercase tracking-tighter mt-2">{copilotResponse.verification_status}</p>
+                         </div>
+                      </div>
+                      <div className="pt-8 border-t border-white/10">
+                        <p className="text-[10px] font-black text-foreground/40 uppercase tracking-widest mb-4">Strategic Logic</p>
+                        <p className="text-md font-semibold dark:text-slate-300 leading-relaxed italic opacity-90">
+                           "{copilotResponse.manager_insights?.summary}"
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
+                <div className="space-y-5">
+                  <p className="text-[11px] font-black text-foreground/30 uppercase tracking-[0.4em] px-4">Neural Command Shortcuts</p>
+                  {["Analyze AZ-104 Squad", "Detect Burnout in Cloud Ops", "Predict AI-102 Success"].map((text, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => setCopilotInput(text)}
+                      className="w-full text-left p-8 rounded-[2.25rem] bg-white/5 dark:bg-white/5 hover:cyber-gradient hover:text-white border border-white/10 hover:border-transparent transition-all duration-500 group shadow-xl"
+                    >
+                      <div className="flex items-center justify-between">
+                         <span className="text-[13px] font-black uppercase tracking-widest whitespace-nowrap">{text}</span>
+                         <Zap className="w-4 h-4 text-primary group-hover:text-white group-hover:scale-125 transition-all" />
+                      </div>
                     </button>
                   ))}
                 </div>
               </div>
 
-              <div className="mt-8 relative group">
-                <MessageSquare className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-primary transition-colors" />
+              <div className="mt-16 relative group">
+                <div className="absolute inset-0 bg-primary/30 blur-3xl opacity-0 group-focus-within:opacity-100 transition-opacity duration-1000" />
+                <MessageSquare className="absolute left-8 top-1/2 -translate-y-1/2 w-6 h-6 text-foreground/30 group-focus-within:text-primary transition-colors relative z-10" />
                 <input 
                   type="text" 
-                  placeholder="Message CertForge Copilot..." 
-                  className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-2xl py-4 pl-12 pr-4 text-sm font-medium focus:ring-2 focus:ring-primary/20 outline-none transition-all shadow-inner"
+                  value={copilotInput}
+                  onChange={(e) => setCopilotInput(e.target.value)}
+                  onKeyDown={handleCopilotSubmit}
+                  placeholder="Ask OS Intelligence (Enter)..." 
+                  className="w-full bg-slate-100/50 dark:bg-white/5 border-2 border-white/10 focus:border-primary/50 rounded-[2.5rem] py-8 pl-20 pr-10 text-lg font-black dark:text-white outline-none transition-all relative z-10 shadow-3xl"
                 />
               </div>
             </motion.div>

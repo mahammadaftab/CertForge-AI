@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import health, auth, intelligence, semantic, assessment, predictor
+from app.api.v1.endpoints import health, auth, intelligence, semantic, assessment, predictor, certifications, dashboard, employees, command_center, teams, reports
 
 api_router = APIRouter()
 api_router.include_router(health.router, prefix="/health", tags=["health"])
@@ -8,3 +8,9 @@ api_router.include_router(intelligence.router, prefix="/intelligence", tags=["in
 api_router.include_router(semantic.router, prefix="/semantic", tags=["semantic"])
 api_router.include_router(assessment.router, prefix="/assessment", tags=["assessment"])
 api_router.include_router(predictor.router, prefix="/predictor", tags=["predictor"])
+api_router.include_router(certifications.router, prefix="/certifications", tags=["certifications"])
+api_router.include_router(dashboard.router, prefix="/dashboard", tags=["dashboard"])
+api_router.include_router(employees.router, prefix="/employees", tags=["employees"])
+api_router.include_router(command_center.router, prefix="/command-center", tags=["command-center"])
+api_router.include_router(teams.router, prefix="/teams", tags=["teams"])
+api_router.include_router(reports.router, prefix="/reports", tags=["reports"])

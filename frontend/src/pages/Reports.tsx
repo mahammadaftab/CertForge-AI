@@ -1,0 +1,108 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  FileText, 
+  Download, 
+  BarChart2, 
+  ArrowRight,
+  PieChart as PieChartIcon
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import api from '../lib/api';
+import { cn } from '../lib/utils';
+
+const Reports: React.FC = () => {
+  const [reports, setReports] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        const response = await api.get('/reports/');
+        setReports(response.data);
+      } catch (error) {
+        console.error("Failed to fetch reports", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReports();
+  }, []);
+
+  if (loading) return (
+    <div className="h-[80vh] flex items-center justify-center">
+       <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-foreground/40 animate-pulse">Compiling Intelligence Reports...</span>
+       </div>
+    </div>
+  );
+
+  return (
+    <div className="space-y-12 pb-20">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-8">
+        <div className="space-y-4">
+           <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-xl text-primary"><FileText className="w-5 h-5" /></div>
+              <span className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/30">Archives / Neural Logs</span>
+           </div>
+           <h1 className="text-6xl font-black tracking-tighter dark:text-white leading-[0.9]">Neural <span className="text-primary">Reports.</span></h1>
+           <p className="text-foreground/60 text-lg font-medium max-w-2xl italic">Synthesized workforce intelligence reports and system performance audits.</p>
+        </div>
+        <button className="bg-[#02040a] dark:bg-white text-white dark:text-[#02040a] px-10 py-5 rounded-[2rem] font-black uppercase tracking-widest text-[11px] shadow-2xl hover:scale-105 transition-all">
+           Generate New Audit
+        </button>
+      </div>
+
+      {reports.length === 0 ? (
+        <div className="mica p-20 rounded-[4rem] text-center space-y-6 border-white/5 bg-white/5 border-dashed">
+           <div className="p-8 bg-foreground/5 dark:bg-white/5 rounded-full inline-block">
+              <PieChartIcon className="w-16 h-16 text-foreground/20" />
+           </div>
+           <h2 className="text-3xl font-black text-foreground/20 tracking-tighter">No Active Reports</h2>
+           <p className="text-foreground/40 max-w-sm mx-auto italic">The system is currently aggregating neural flux data for the next intelligence cycle.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+           {reports.map((report, idx) => (
+             <motion.div 
+               key={report.id}
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: idx * 0.1 }}
+               className="mica p-10 rounded-[3.5rem] border-white/10 hover:border-primary/40 transition-all duration-700 group relative flex flex-col justify-between shadow-2xl"
+             >
+                <div className="absolute inset-0 living-canvas opacity-0 group-hover:opacity-5 transition-opacity" />
+                <div className="relative z-10 space-y-6">
+                   <div className="flex justify-between items-start">
+                      <div className="p-4 bg-primary/10 rounded-2xl text-primary shadow-inner">
+                         <BarChart2 className="w-6 h-6" />
+                      </div>
+                      <span className="px-4 py-1.5 rounded-full bg-foreground/5 dark:bg-white/5 border border-white/10 text-[9px] font-black uppercase tracking-widest text-foreground/40">
+                         {report.type}
+                      </span>
+                   </div>
+                   <div>
+                      <h3 className="text-2xl font-black dark:text-white tracking-tighter mb-2">{report.title}</h3>
+                      <p className="text-sm font-medium text-foreground/60 leading-relaxed italic">"{report.summary}"</p>
+                   </div>
+                </div>
+                <div className="relative z-10 mt-10 pt-8 border-t border-white/5 flex justify-between items-center">
+                   <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-foreground/10 dark:bg-white/10 flex items-center justify-center text-[10px] font-black text-foreground/40">
+                         {report.generated_by?.full_name?.charAt(0) || 'S'}
+                      </div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-foreground/30">Generated by Neural Core</span>
+                   </div>
+                   <button className="p-3 mica rounded-xl border-white/20 text-foreground/40 hover:text-primary transition-all shadow-xl">
+                      <Download className="w-4 h-4" />
+                   </button>
+                </div>
+             </motion.div>
+           ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Reports;

@@ -36,7 +36,7 @@ Format the output as a JSON list of objects with:
 "id", "text", "options" (list of 4), "correct_answer", "explanation"."""
 
         try:
-            response = await llm.ainvoke([SystemMessage(content=system_prompt)])
+            response = await llm.ainvoke([HumanMessage(content=system_prompt)])
             # Basic cleaning of LLM output for potential markdown blocks
             content = response.content.replace("```json", "").replace("```", "").strip()
             return json.loads(content)
@@ -53,7 +53,7 @@ The scenario should involve a technical challenge with multiple dependencies.
 Include: "context", "challenge", "options" (4 strategic approaches), "correct_approach", and "logic"."""
 
         try:
-            response = await llm.ainvoke([SystemMessage(content=system_prompt)])
+            response = await llm.ainvoke([HumanMessage(content=system_prompt)])
             content = response.content.replace("```json", "").replace("```", "").strip()
             return json.loads(content)
         except Exception as e:

@@ -2,7 +2,6 @@ import certifi
 import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from beanie import init_beanie
-from beanie.exceptions import CollectionWasNotInitialized
 from app.core.config import settings
 from app.models.user import User
 from app.models.employee import Employee
@@ -16,21 +15,23 @@ from app.models.assessment_result import AssessmentResult
 from app.models.readiness_score import ReadinessScore
 from app.models.notification import Notification
 from app.models.audit_log import AuditLog
+from app.models.report import Report
 
 logger = logging.getLogger(__name__)
 
 db_initialized = False
 
 async def init_db():
+    global db_initialized
     """
     Initializes the MongoDB Atlas connection and Beanie ODM.
     """
-    global db_initialized
     try:
         client = AsyncIOMotorClient(
             settings.MONGODB_URL,
             tlsCAFile=certifi.where(),
             serverSelectionTimeoutMS=5000,
+            uuidRepresentation='standard'
         )
         
         await init_beanie(
@@ -47,17 +48,12 @@ async def init_db():
                 AssessmentResult,
                 ReadinessScore,
                 Notification,
-                AuditLog
+                AuditLog,
+                Report
             ]
         )
-        db_initialized = True
         logger.info("MongoDB Atlas connected and Beanie initialized.")
+        db_initialized = True
     except Exception as e:
+        logger.error(f"Failed to connect to MongoDB Atlas: {e}")
         db_initialized = False
-        logger.error(
-            f"Failed to connect to MongoDB Atlas: {e}\n"
-            "Please check:\n"
-            "  1. Is your MongoDB Atlas cluster running (not paused)?\n"
-            "  2. Is your IP whitelisted in Atlas Network Access?\n"
-            "  3. Is your MONGODB_URL in .env correct?"
-        )
