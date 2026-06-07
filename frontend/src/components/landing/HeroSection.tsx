@@ -32,7 +32,7 @@ const HeroSection = () => {
       <LivingOSBackground />
       
       {/* Hero Content */}
-      <section className="relative min-h-[90vh] flex flex-col items-center px-6 pt-[90px] overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-24 pb-12 overflow-hidden">
          <motion.div 
            style={{ opacity, y, scale }}
            className="text-center relative z-20 w-full max-w-6xl flex flex-col items-center"
@@ -49,10 +49,13 @@ const HeroSection = () => {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 1 }}
-              className="mb-5"
+              className="mb-5 w-full flex justify-center"
             >
-               <h1 className="text-7xl md:text-[9rem] lg:text-[11rem] font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl">
-                  CertForge <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-[#8B5CF6] to-[#FF00AA] animate-gradient bg-300% drop-shadow-[0_0_40px_rgba(0,229,255,0.4)]">AI.</span>
+               <h1 className="text-[5rem] sm:text-[7rem] md:text-[9rem] lg:text-[11rem] font-black tracking-tighter leading-[0.85] text-white drop-shadow-2xl flex flex-col items-center justify-center">
+                  <span>CertForge</span>
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00E5FF] via-[#8B5CF6] to-[#FF00AA] animate-gradient bg-300% drop-shadow-[0_0_40px_rgba(0,229,255,0.4)]">
+                     AI.
+                  </span>
                </h1>
             </motion.div>
             
@@ -60,7 +63,7 @@ const HeroSection = () => {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4, duration: 1 }}
-              className="text-xl md:text-3xl text-white/70 font-medium max-w-4xl mx-auto leading-relaxed mb-6"
+              className="text-xl md:text-3xl text-white/70 font-medium max-w-4xl mx-auto leading-relaxed mb-12"
             >
                Enterprise Certification Intelligence Platform <br className="hidden md:block"/>
                powered by <span className="text-white font-bold">Multi-Agent AI</span>.

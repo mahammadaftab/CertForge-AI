@@ -64,9 +64,11 @@ const LiveDashboardSection = () => {
                     >
                        <div className="absolute -left-[5px] top-1.5 w-2 h-2 rounded-full bg-[#00E5FF] shadow-[0_0_10px_#00E5FF]" />
                        <p className="text-[10px] font-black uppercase tracking-widest text-white/40 mb-1">
-                          {new Date(log.time).toLocaleTimeString()} — {log.user}
+                          {new Date(log.time).toLocaleTimeString()} — {typeof log.user === 'object' ? JSON.stringify(log.user) : log.user}
                        </p>
-                       <p className="text-sm font-medium text-white">{log.action}: {log.details}</p>
+                       <p className="text-sm font-medium text-white">
+                          {typeof log.action === 'object' ? JSON.stringify(log.action) : log.action}: {typeof log.details === 'object' ? JSON.stringify(log.details) : log.details}
+                       </p>
                     </motion.div>
                   ))}
                </AnimatePresence>

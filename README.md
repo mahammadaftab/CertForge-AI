@@ -65,6 +65,11 @@ venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
+```bash
+cd backend
+venv\Scripts\activate
+uvicorn app.main:app --reload
+```
 
 **Frontend:**
 ```bash

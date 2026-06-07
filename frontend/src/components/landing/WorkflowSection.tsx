@@ -30,14 +30,10 @@ const WorkflowSection = () => {
 
           {/* Connectors & Nodes */}
           <svg className="absolute inset-0 w-full h-full pointer-events-none z-0">
-            <motion.path 
-              d="M 50% 50% L 20% 20% M 50% 50% L 80% 20% M 50% 50% L 20% 80% M 50% 50% L 80% 80%" 
-              stroke="#00E5FF" 
-              strokeWidth="2" 
-              fill="none" 
-              strokeDasharray="10 10"
-              style={{ pathLength, opacity: pathLength }}
-            />
+            <motion.line x1="50%" y1="50%" x2="20%" y2="20%" stroke="#00E5FF" strokeWidth="2" strokeDasharray="10 10" style={{ pathLength, opacity: pathLength }} />
+            <motion.line x1="50%" y1="50%" x2="80%" y2="20%" stroke="#00E5FF" strokeWidth="2" strokeDasharray="10 10" style={{ pathLength, opacity: pathLength }} />
+            <motion.line x1="50%" y1="50%" x2="20%" y2="80%" stroke="#00E5FF" strokeWidth="2" strokeDasharray="10 10" style={{ pathLength, opacity: pathLength }} />
+            <motion.line x1="50%" y1="50%" x2="80%" y2="80%" stroke="#00E5FF" strokeWidth="2" strokeDasharray="10 10" style={{ pathLength, opacity: pathLength }} />
           </svg>
 
           {/* Nodes */}
