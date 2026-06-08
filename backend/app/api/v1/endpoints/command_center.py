@@ -11,7 +11,10 @@ from app.models.user import UserRole
 router = APIRouter()
 
 @router.get("/graph-data")
-async def get_graph_data(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def get_graph_data(
+    current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER])),
+    _: None = Depends(deps.require_db)
+):
     """
     Returns nodes and links for the D3 Knowledge Graph.
     """
@@ -47,7 +50,10 @@ async def get_graph_data(current_user: Any = Depends(deps.RoleChecker([UserRole.
     return {"nodes": nodes, "links": links}
 
 @router.get("/risk-heatmap")
-async def get_risk_heatmap(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def get_risk_heatmap(
+    current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER])),
+    _: None = Depends(deps.require_db)
+):
     """
     Returns data for the Team Risk Heatmap.
     """
@@ -60,21 +66,24 @@ async def get_risk_heatmap(current_user: Any = Depends(deps.RoleChecker([UserRol
     ]
 
 @router.get("/live-feed")
-async def get_live_feed():
+async def get_live_feed(_: None = Depends(deps.require_db)):
     """
     Returns the most recent system activity logs.
     """
     logs = await AuditLog.find_all(fetch_links=True).sort("-created_at").limit(10).to_list()
     return [{
         "id": str(log.id),
-        "user": log.user.full_name if log.user else "System",
+        "user": getattr(log.user, "full_name", "Unknown User") if log.user else "System",
         "action": log.action,
         "details": log.details,
         "time": log.created_at
     } for log in logs]
 
 @router.get("/readiness-radar")
-async def get_readiness_radar(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def get_readiness_radar(
+    current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER])),
+    _: None = Depends(deps.require_db)
+):
     """
     Aggregates readiness across multiple dimensions.
     """
