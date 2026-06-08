@@ -26,13 +26,30 @@ async def init_db():
     """
     Initializes the MongoDB Atlas connection and Beanie ODM.
     """
+    if not settings.MONGODB_URL:
+        logger.error("MONGODB_URL is not set in environment variables.")
+        db_initialized = False
+        return
+
+    # Mask password for logging
+    masked_url = settings.MONGODB_URL
+    if "@" in masked_url:
+        prefix = masked_url.split("@")[0]
+        if ":" in prefix:
+            user_part = prefix.split(":")[0]
+            masked_url = f"{user_part}:****@{masked_url.split('@')[1]}"
+
     try:
+        logger.info(f"Connecting to MongoDB Atlas: {masked_url}")
         client = AsyncIOMotorClient(
             settings.MONGODB_URL,
             tlsCAFile=certifi.where(),
             serverSelectionTimeoutMS=5000,
             uuidRepresentation='standard'
         )
+        
+        # Verify connection
+        await client.server_info()
         
         await init_beanie(
             database=client[settings.MONGODB_DB_NAME],
@@ -55,5 +72,5 @@ async def init_db():
         logger.info("MongoDB Atlas connected and Beanie initialized.")
         db_initialized = True
     except Exception as e:
-        logger.error(f"Failed to connect to MongoDB Atlas: {e}")
+        logger.error(f"Failed to connect to MongoDB Atlas ({masked_url}): {e}")
         db_initialized = False

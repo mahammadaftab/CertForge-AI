@@ -8,7 +8,10 @@ from app.models.user import UserRole
 router = APIRouter()
 
 @router.get("/")
-async def list_employees(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def list_employees(
+    current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER])),
+    _: None = Depends(deps.require_db)
+):
     """
     Retrieves all employees from MongoDB, including linked user data and real scores.
     """

@@ -16,7 +16,8 @@ router = APIRouter()
 
 @router.post("/login/access-token", response_model=Token)
 async def login_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends()
+    form_data: OAuth2PasswordRequestForm = Depends(),
+    _: None = Depends(deps.require_db)
 ) -> Any:
     """
     OAuth2 compatible token login, get an access token for future requests
@@ -38,7 +39,8 @@ async def login_access_token(
 
 @router.post("/refresh-token", response_model=Token)
 async def refresh_token(
-    request: RefreshTokenRequest
+    request: RefreshTokenRequest,
+    _: None = Depends(deps.require_db)
 ) -> Any:
     """
     Refresh access token using a valid refresh token
@@ -74,7 +76,8 @@ async def refresh_token(
 @router.post("/register", response_model=UserSchema)
 async def register_user(
     *,
-    user_in: UserCreate
+    user_in: UserCreate,
+    _: None = Depends(deps.require_db)
 ) -> Any:
     """
     Create new user.
