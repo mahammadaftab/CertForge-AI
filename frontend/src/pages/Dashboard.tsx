@@ -11,11 +11,9 @@ import {
   Activity, 
   BrainCircuit, 
   Cpu, 
-  ShieldAlert, 
   Sparkles,
   Terminal,
   Network,
-  Users,
   AlertCircle,
   CheckCircle2,
   Clock,
@@ -25,7 +23,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
 import ForceGraph2D from 'react-force-graph-2d';
 import { dashboardService } from '../lib/dashboardService';
-import type { GraphData, RadarData, ActivityLog, PredictionResult } from '../lib/dashboardService';
+import type { GraphData, RadarData, ActivityLog } from '../lib/dashboardService';
 // No toast dependency needed for now
 
 // --- AGENT TYPES ---
@@ -288,9 +286,6 @@ const Dashboard: React.FC = () => {
                     const label = node.name;
                     const fontSize = 12/globalScale;
                     ctx.font = `${fontSize}px Inter`;
-                    const textWidth = ctx.measureText(label).width;
-                    const bckgDimensions = [textWidth, fontSize].map(n => n + fontSize * 0.2);
-
                     // Circle Shadow/Glow
                     ctx.beginPath();
                     ctx.arc(node.x, node.y, node.val / 2, 0, 2 * Math.PI, false);
@@ -322,7 +317,7 @@ const Dashboard: React.FC = () => {
         {/* 4. Agent Execution Center */}
         <GlassCard title="Agent Execution Center" icon={Cpu} className="md:col-span-4 min-h-[400px]" delay={0.3}>
            <div className="space-y-4">
-              {agents.map((agent, i) => (
+              {agents.map((agent) => (
                 <div key={agent.name} className="p-4 rounded-xl bg-white/5 border border-white/5 flex flex-col gap-3">
                    <div className="flex justify-between items-center">
                       <div className="flex items-center gap-3">

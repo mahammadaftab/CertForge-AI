@@ -11,8 +11,6 @@ import {
   ShieldAlert,
   BarChart4,
   Users,
-  Search,
-  ChevronRight,
   Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';

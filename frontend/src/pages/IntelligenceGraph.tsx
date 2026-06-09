@@ -1,12 +1,12 @@
-import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Network, Search, Filter, Info, Server, Activity, Users, Award, 
-  Target, ShieldAlert, Cpu, ZoomIn, ZoomOut, Maximize
+  Target, ShieldAlert, Cpu, ZoomIn, ZoomOut, Maximize, Database
 } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
 import { dashboardService } from '../lib/dashboardService';
-import type { GraphData, GraphNode, GraphLink } from '../lib/dashboardService';
+import type { GraphData, GraphNode } from '../lib/dashboardService';
 import { agentService } from '../lib/agentService';
 import type { AgentExecutionLog } from '../lib/agentService';
 import { cn } from '../lib/utils';
@@ -31,7 +31,7 @@ const NODE_ICONS: Record<string, any> = {
 };
 
 const IntelligenceGraph: React.FC = () => {
-  const graphRef = useRef<any>();
+  const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   
   const [data, setData] = useState<GraphData>({ nodes: [], links: [] });

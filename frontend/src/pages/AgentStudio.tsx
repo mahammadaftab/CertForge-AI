@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Cpu, Activity, Database, Network, Play, Terminal, 
-  AlertCircle, CheckCircle2, Server, BrainCircuit, PlayCircle, Plus
+  Cpu, Activity, Database, Network, Terminal, 
+  Server, BrainCircuit, PlayCircle, Plus
 } from 'lucide-react';
 import ForceGraph2D from 'react-force-graph-2d';
 import { cn } from '../lib/utils';
@@ -72,8 +72,7 @@ const AgentStudio: React.FC = () => {
   const [isExecuting, setIsExecuting] = useState(false);
   const [loading, setLoading] = useState(true);
   
-  // Websocket ref mock
-  const ws = useRef<WebSocket | null>(null);
+  // Websocket ref mock (removed unused ref)
 
   const fetchInitialData = useCallback(async () => {
     try {

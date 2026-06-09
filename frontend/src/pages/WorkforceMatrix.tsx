@@ -2,14 +2,14 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Users, Search, Filter, Download, ChevronDown, Activity, 
-  Target, ShieldAlert, Cpu, AlertCircle, BrainCircuit, Server, Award, BarChart4
+  Target, ShieldAlert, Cpu, AlertCircle, BrainCircuit, Server, BarChart4
 } from 'lucide-react';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { cn } from '../lib/utils';
 import api from '../lib/api';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer,
-  Cell, ScatterChart, Scatter, ZAxis
+  Cell
 } from 'recharts';
 import { agentService } from '../lib/agentService';
 
@@ -43,7 +43,7 @@ const WorkforceMatrix: React.FC = () => {
   const [teams, setTeams] = useState<any[]>([]);
   const [riskData, setRiskData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [, setError] = useState(false);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [search, setSearch] = useState('');
   const [departmentFilter, setDepartmentFilter] = useState('All');
