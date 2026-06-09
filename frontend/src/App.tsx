@@ -4,7 +4,7 @@ import AppLayout from './components/AppLayout';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import Dashboard from './pages/Dashboard';
-import Employees from './pages/Employees';
+import WorkforceMatrix from './pages/WorkforceMatrix';
 import Intelligence from './pages/Intelligence';
 import AssessmentCenter from './pages/AssessmentCenter';
 import SuccessPredictor from './pages/SuccessPredictor';
@@ -14,6 +14,8 @@ import FabricIQ from './pages/FabricIQ';
 import Reports from './pages/Reports';
 import Placeholder from './pages/Placeholder';
 import LandingPage from './pages/LandingPage';
+import AgentStudio from './pages/AgentStudio';
+import IntelligenceGraph from './pages/IntelligenceGraph';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode, allowedRoles?: UserRole[] }> = ({ children, allowedRoles }) => {
   const { user, loading } = useAuth();
@@ -61,10 +63,10 @@ function App() {
             } 
           />
           <Route 
-            path="/employees" 
+            path="/workforce-matrix" 
             element={
               <PrivateRoute allowedRoles={[UserRole.ADMIN, UserRole.MANAGER]}>
-                <Employees />
+                <WorkforceMatrix />
               </PrivateRoute>
             } 
           />
@@ -113,6 +115,22 @@ function App() {
             element={
               <PrivateRoute>
                 <Reports />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/agent-studio" 
+            element={
+              <PrivateRoute>
+                <AgentStudio />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/intelligence-graph" 
+            element={
+              <PrivateRoute>
+                <IntelligenceGraph />
               </PrivateRoute>
             } 
           />

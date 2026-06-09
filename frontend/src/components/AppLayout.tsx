@@ -1,14 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { 
   Terminal,
   Activity,
-  Layers,
+  Network,
+  Cpu,
   BrainCircuit,
-  Settings,
   LogOut,
   Command,
-  Database
+  ShieldAlert,
+  BarChart4,
+  Users,
+  Search,
+  ChevronRight,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../lib/utils';
@@ -16,109 +21,136 @@ import { useAuth } from '../context/AuthContext';
 import CommandPalette from './CommandPalette';
 
 const dockItems = [
-  { icon: Terminal, label: 'Command', path: '/command-center' },
+  { icon: Terminal, label: 'Command Center', path: '/' },
+  { icon: Cpu, label: 'Agent Studio', path: '/agent-studio' },
+  { icon: Network, label: 'Intelligence Graph', path: '/intelligence-graph' },
+  { icon: Users, label: 'Workforce Matrix', path: '/workforce-matrix' },
   { icon: BrainCircuit, label: 'Foundry IQ', path: '/foundry-iq' },
-  { icon: Activity, label: 'Work IQ', path: '/work-iq' },
-  { icon: Layers, label: 'Fabric IQ', path: '/fabric-iq' },
-  { icon: Database, label: 'Workforce', path: '/employees' },
+  { icon: Activity, label: 'Prediction Engine', path: '/prediction-engine' },
+  { icon: BarChart4, label: 'Executive Intelligence', path: '/executive-intelligence' },
 ];
-
-const DockItem = ({ icon: Icon, label, path }: { icon: any, label: string, path: string }) => (
-  <NavLink
-    to={path}
-    className={({ isActive }) =>
-      cn(
-        "relative group flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-500",
-        isActive 
-          ? "bg-[#00E5FF]/10 shadow-[0_0_30px_rgba(0,229,255,0.15)] text-white scale-110" 
-          : "text-white/50 hover:bg-white/5 hover:text-white hover:scale-105"
-      )
-    }
-  >
-    {({ isActive }) => (
-      <>
-        <Icon className={cn("w-6 h-6 transition-all duration-500", isActive && "text-[#00E5FF] drop-shadow-[0_0_10px_rgba(0,229,255,0.8)]")} />
-        <span className="absolute left-full ml-4 px-3 py-1.5 bg-[#0A0F1E] border border-[#00E5FF]/20 rounded-lg text-[10px] font-black uppercase tracking-widest whitespace-nowrap opacity-0 group-hover:opacity-100 -translate-x-4 group-hover:translate-x-0 transition-all pointer-events-none z-50">
-          {label}
-        </span>
-        {isActive && (
-          <motion.div 
-            layoutId="active-dot"
-            className="absolute -left-3 w-1.5 h-1.5 rounded-full bg-[#00E5FF] shadow-[0_0_10px_rgba(0,229,255,0.8)]"
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          />
-        )}
-      </>
-    )}
-  </NavLink>
-);
 
 const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
+  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className="flex h-screen bg-transparent overflow-hidden font-sans text-white mesh-gradient relative">
-      <div className="aurora-bg" />
+    <div className="flex h-screen bg-[#030712] overflow-hidden font-sans text-white relative">
+      {/* Deep Space Background with Ambient Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-[#0f172a] via-[#030712] to-[#000000]" />
+      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] mix-blend-screen pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[150px] mix-blend-screen pointer-events-none" />
+      
       <CommandPalette />
 
       {/* OS Frame Container */}
-      <div className="absolute inset-4 md:inset-8 os-window rounded-[2rem] md:rounded-[3rem] flex overflow-hidden shadow-2xl">
+      <div className="absolute inset-4 md:inset-6 flex overflow-hidden rounded-[2rem] bg-white/[0.02] border border-white/10 shadow-[0_0_100px_rgba(0,0,0,0.5)] backdrop-blur-3xl">
         
-        {/* Neural Dock (Sidebar) */}
-        <aside className="w-24 md:w-28 border-r border-[#00E5FF]/8 flex flex-col items-center py-10 relative z-20 bg-[#080D1A]/60 backdrop-blur-3xl">
-          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center text-[#0A0F1E] font-black shadow-[0_0_30px_rgba(255,255,255,0.3)] mb-12 cursor-pointer hover:rotate-12 transition-transform" onClick={() => window.location.href = '/'}>
-            CF
+        {/* Premium Command Dock */}
+        <motion.aside 
+          initial={{ width: 88 }}
+          animate={{ width: isExpanded ? 280 : 88 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          onMouseEnter={() => setIsExpanded(true)}
+          onMouseLeave={() => setIsExpanded(false)}
+          className="relative z-30 flex flex-col items-start py-8 bg-[#000000]/60 border-r border-white/5 backdrop-blur-xl group"
+        >
+          {/* Logo Section */}
+          <div className="flex items-center px-6 w-full mb-12">
+            <div className="w-10 h-10 shrink-0 bg-gradient-to-br from-blue-500 to-cyan-400 rounded-xl flex items-center justify-center text-white font-black shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+              CF
+            </div>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isExpanded ? 1 : 0 }}
+              transition={{ duration: 0.2 }}
+              className="ml-4 overflow-hidden whitespace-nowrap font-black tracking-widest uppercase text-sm"
+            >
+              CertForge<span className="text-blue-400">OS</span>
+            </motion.div>
           </div>
 
-          <div className="flex-1 flex flex-col gap-6 w-full items-center">
-            {dockItems.map((item) => (
-              <DockItem key={item.path} {...item} />
-            ))}
+          {/* Navigation Items */}
+          <div className="flex-1 flex flex-col gap-2 w-full px-3">
+            {dockItems.map((item) => {
+              const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+              return (
+                <NavLink
+                  key={item.path}
+                  to={item.path}
+                  className={cn(
+                    "relative flex items-center h-12 rounded-xl transition-all duration-300",
+                    isActive 
+                      ? "bg-blue-500/10 text-blue-400 shadow-[inset_0_0_20px_rgba(59,130,246,0.1)]" 
+                      : "text-white/40 hover:bg-white/5 hover:text-white"
+                  )}
+                >
+                  <div className="w-[64px] shrink-0 flex items-center justify-center relative">
+                    <item.icon className={cn("w-5 h-5 transition-all duration-300", isActive && "drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]")} />
+                    {isActive && (
+                      <motion.div 
+                        layoutId="active-nav-indicator"
+                        className="absolute left-0 w-1 h-6 bg-blue-500 rounded-r-full shadow-[0_0_10px_rgba(59,130,246,0.6)]"
+                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                      />
+                    )}
+                  </div>
+                  <motion.span 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: isExpanded ? 1 : 0 }}
+                    className="overflow-hidden whitespace-nowrap text-xs font-bold tracking-wider"
+                  >
+                    {item.label}
+                  </motion.span>
+                </NavLink>
+              );
+            })}
           </div>
 
-          <div className="flex flex-col gap-6 items-center">
-            <button className="w-14 h-14 rounded-2xl text-white/50 hover:bg-white/5 hover:text-white transition-all flex items-center justify-center">
-               <Settings className="w-6 h-6" />
+          {/* Bottom Actions */}
+          <div className="flex flex-col gap-2 w-full px-3 mt-auto">
+            <button className="relative flex items-center h-12 rounded-xl text-white/40 hover:bg-white/5 hover:text-white transition-all">
+              <div className="w-[64px] shrink-0 flex items-center justify-center"><Settings className="w-5 h-5" /></div>
+              <motion.span animate={{ opacity: isExpanded ? 1 : 0 }} className="overflow-hidden whitespace-nowrap text-xs font-bold tracking-wider">System Settings</motion.span>
             </button>
-            <div className="w-10 h-[1px] bg-white/10" />
-            <button onClick={logout} className="w-14 h-14 rounded-2xl text-red-500/50 hover:bg-red-500/10 hover:text-red-500 transition-all flex items-center justify-center">
-               <LogOut className="w-6 h-6 ml-1" />
+            <button onClick={logout} className="relative flex items-center h-12 rounded-xl text-red-500/50 hover:bg-red-500/10 hover:text-red-400 transition-all">
+              <div className="w-[64px] shrink-0 flex items-center justify-center"><LogOut className="w-5 h-5" /></div>
+              <motion.span animate={{ opacity: isExpanded ? 1 : 0 }} className="overflow-hidden whitespace-nowrap text-xs font-bold tracking-wider">Terminate Session</motion.span>
             </button>
           </div>
-        </aside>
+        </motion.aside>
 
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col relative z-10 overflow-hidden bg-[#0A0F1E]/20">
-          <header className="h-20 flex items-center justify-between px-8 md:px-12 border-b border-[#00E5FF]/8 backdrop-blur-md">
-            <div className="flex items-center gap-4">
-               <span className="text-[10px] font-black uppercase tracking-[0.4em] text-[#00E5FF]">{location.pathname.replace('/', '') || 'Core'} Module</span>
+        <div className="flex-1 flex flex-col relative z-10 overflow-hidden bg-transparent">
+          <header className="h-16 flex items-center justify-between px-8 border-b border-white/5 bg-black/20 backdrop-blur-md">
+            <div className="flex items-center gap-3 text-white/40">
+               <span className="text-[10px] font-black uppercase tracking-[0.3em] flex items-center gap-2">
+                 <ShieldAlert className="w-3.5 h-3.5 text-blue-400" />
+                 OS Kernel Active
+               </span>
             </div>
             <div className="flex items-center gap-6">
-              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 border border-[#00E5FF]/15 text-[10px] font-black uppercase tracking-widest text-white/60 hover:bg-white/10 transition-colors cursor-pointer">
-                <Command className="w-4 h-4" /> ⌘K
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/60 hover:bg-white/10 transition-colors cursor-pointer">
+                <Command className="w-3.5 h-3.5" /> ⌘K
               </div>
-              <div className="flex items-center gap-4">
-                 <div className="text-right">
-                    <p className="text-xs font-black uppercase tracking-widest text-white">{user?.full_name}</p>
-                    <p className="text-[9px] font-black text-[#8B5CF6] uppercase tracking-[0.3em] opacity-80 mt-1">Lvl 9 Clearance</p>
-                 </div>
-                 <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00E5FF] to-[#8B5CF6] flex items-center justify-center text-white font-black text-sm shadow-[0_0_20px_rgba(139,92,246,0.4)]">
-                   {user?.full_name?.charAt(0)}
+              <div className="flex items-center gap-3">
+                 <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-black text-xs shadow-[0_0_15px_rgba(147,51,234,0.3)]">
+                   {user?.full_name?.charAt(0) || 'U'}
                  </div>
               </div>
             </div>
           </header>
 
-          <main className="flex-1 overflow-y-auto overflow-x-hidden relative no-scrollbar">
+          <main className="flex-1 overflow-y-auto overflow-x-hidden relative scrollbar-none">
             <AnimatePresence mode="wait">
               <motion.div
                 key={location.pathname}
-                initial={{ opacity: 0, scale: 0.98, filter: 'blur(10px)' }}
-                animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, scale: 1.02, filter: 'blur(10px)' }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="h-full"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="min-h-full"
               >
                 {children}
               </motion.div>

@@ -1,12 +1,18 @@
 from langchain_core.messages import SystemMessage, AIMessage
 from app.services.ai.state import AgentState
 from app.services.ai.config import llm
+from app.models.audit_log import AuditLog
 
-def workload_agent(state: AgentState) -> dict:
+async def workload_agent(state: AgentState) -> dict:
     """
     Analyzes the proposed study plan against the employee's current project workload.
     """
     print("--- WORKLOAD AGENT ---")
+    
+    await AuditLog(
+        action="AGENT_WORKLOAD_START", 
+        details={"agent": "Manager Agent"}
+    ).insert()
     
     study_plan = state.get("study_plan", {})
     
@@ -17,9 +23,14 @@ Output a status: 'Feasible', 'High Risk', or 'Overloaded', followed by a brief r
     messages = [SystemMessage(content=system_prompt)] + list(state["messages"])
     
     try:
-        response = llm.invoke(messages)
+        response = await llm.ainvoke(messages)
         status = "Feasible" if "Feasible" in response.content else "High Risk"
         
+        await AuditLog(
+            action="AGENT_WORKLOAD_SUCCESS", 
+            details={"agent": "Manager Agent", "status": status}
+        ).insert()
+
         return {
             "messages": [AIMessage(content=f"Workload analyzed: {status}")],
             "workload_status": status,
@@ -27,6 +38,10 @@ Output a status: 'Feasible', 'High Risk', or 'Overloaded', followed by a brief r
             "next_action": "continue"
         }
     except Exception as e:
+        await AuditLog(
+            action="AGENT_WORKLOAD_ERROR", 
+            details={"agent": "Manager Agent", "error": str(e)}
+        ).insert()
         return {
             "errors": [f"WorkloadAgent Error: {str(e)}"],
             "next_action": "retry",
