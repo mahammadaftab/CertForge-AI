@@ -39,6 +39,17 @@ python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
 4. In Network Access, allow IP access from your Azure App Service outbound IP addresses (or setup VNet peering).
 5. Copy the connection string.
 
+### C. Deploying Frontend (Azure Static Web Apps)
+1. Navigate to the **Azure Portal**.
+2. Create a new **Static Web App**.
+3. **Source:** Connect your GitHub repository.
+4. **Build Details:**
+   - Build Presets: **React** (or Custom)
+   - App location: `/frontend`
+   - Api location: *(leave blank)*
+   - Output location: `dist`
+5. Click **Review + Create** to deploy the frontend.
+
 ---
 
 ## 3. Environment Variables Configuration
@@ -54,6 +65,13 @@ In Azure App Service > **Configuration** > **Application settings**, add the fol
 | `MONGODB_DB_NAME` | `certforge_prod` | Database Name |
 | `SECRET_KEY` | `your-secure-random-256-bit-key` | JWT Signing Key (Must rotate) |
 | `GEMINI_API_KEY` | `AIzaSy...` | Required for Foundry IQ Embeddings |
+
+### Frontend Environment Variables
+In your Azure Static Web Apps environment configuration (or Vercel), add the following variable so the frontend can securely communicate with the backend:
+
+| Variable | Value | Description |
+| :--- | :--- | :--- |
+| `VITE_API_URL` | `https://your-backend.azurewebsites.net` | Your production backend URL |
 
 ---
 

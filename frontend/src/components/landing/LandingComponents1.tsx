@@ -186,7 +186,7 @@ export const SolutionSection = () => {
       <div className="flex flex-col md:flex-row items-center justify-between gap-8 md:gap-0 relative max-w-6xl mx-auto">
          <div className="hidden md:block absolute top-12 left-10 right-10 h-1 bg-white/5 -translate-y-1/2 z-0" />
          <motion.div 
-            initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeInOut" }} originX={0}
+            initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} viewport={{ once: true }} transition={{ duration: 1.5, ease: "easeInOut" }} style={{ originX: 0 }}
             className="hidden md:block absolute top-12 left-10 right-10 h-1 bg-gradient-to-r from-transparent via-primary to-transparent -translate-y-1/2 z-0 opacity-80 blur-[2px]" 
          />
 
