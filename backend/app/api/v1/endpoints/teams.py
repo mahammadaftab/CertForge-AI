@@ -7,7 +7,7 @@ from app.models.user import UserRole
 router = APIRouter()
 
 @router.get("/")
-async def list_teams(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def list_teams(current_user: Any = Depends(deps.RoleChecker([UserRole.ROOT_ADMIN, UserRole.CONTROLLER]))):
     """
     Retrieves all teams from MongoDB, including linked manager data.
     """

@@ -8,7 +8,7 @@ from app.models.user import UserRole
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None
     full_name: Optional[str] = None
-    role: Optional[UserRole] = UserRole.EMPLOYEE
+    role: Optional[UserRole] = UserRole.ASSOCIATE
     is_active: Optional[bool] = True
 
 # Properties to receive via API on creation

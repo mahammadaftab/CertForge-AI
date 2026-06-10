@@ -9,7 +9,7 @@ router = APIRouter()
 
 @router.get("/")
 async def list_employees(
-    current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER])),
+    current_user: Any = Depends(deps.RoleChecker([UserRole.ROOT_ADMIN, UserRole.CONTROLLER])),
     _: None = Depends(deps.require_db)
 ):
     """

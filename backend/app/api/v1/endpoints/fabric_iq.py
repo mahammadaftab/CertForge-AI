@@ -7,7 +7,7 @@ from app.models.certification import Certification
 router = APIRouter()
 
 @router.get("/semantic-graph")
-async def get_semantic_graph(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def get_semantic_graph(current_user: Any = Depends(deps.RoleChecker([UserRole.ROOT_ADMIN, UserRole.CONTROLLER]))):
     """
     Returns the semantic relationship between skills, certifications, and readiness models.
     """

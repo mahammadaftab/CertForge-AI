@@ -72,12 +72,14 @@ class SuccessPredictor:
         joblib.dump(self.scaler, self.scaler_path)
         logger.info("Success Predictor ML model initialized and persisted.")
 
-    def predict(self, input_data: PredictionInput) -> Dict[str, Any]:
+    async def predict(self, input_data: PredictionInput, user_id: str = "demo-user") -> Dict[str, Any]:
         """
         Generates success prediction with pass probability and risk analysis.
         """
         if not self._is_trained:
             return {"error": "Model not available"}
+
+        from app.models.production import Prediction
 
         features = np.array([[
             input_data.study_hours,
@@ -85,20 +87,20 @@ class SuccessPredictor:
             input_data.skill_coverage_percent,
             input_data.team_readiness_avg
         ]])
-        
+
         features_scaled = self.scaler.transform(features)
         pass_prob = self.model.predict_proba(features_scaled)[0][1]
-        
+
         # Heuristic calculations for detailed metrics
         readiness = (
             (input_data.avg_assessment_score * 0.4) + 
             (input_data.skill_coverage_percent * 0.4) + 
             (min(input_data.study_hours / 50, 1.0) * 20)
         )
-        
+
         risk = max(0, 100 - (pass_prob * 100))
-        
-        return {
+
+        result = {
             "readiness_score": round(readiness, 2),
             "pass_probability": round(pass_prob * 100, 2),
             "risk_score": round(risk, 2),
@@ -110,6 +112,21 @@ class SuccessPredictor:
             },
             "recommendation": self._get_recommendation(pass_prob, input_data)
         }
+
+        # Persist to DB
+        prediction_doc = Prediction(
+            user_id=user_id,
+            certification_target="Dynamic Protocol", # Should be passed in
+            pass_probability=result["pass_probability"],
+            risk_score=result["risk_score"],
+            readiness_score=result["readiness_score"],
+            recommendations=result["recommendation"],
+            dimensions=result["dimensions"]
+        )
+        await prediction_doc.insert()
+
+        return result
+
 
     def _get_recommendation(self, prob: float, data: PredictionInput) -> str:
         if prob > 0.90: return "Optimal Readiness: Schedule exam immediately."

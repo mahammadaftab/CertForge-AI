@@ -8,7 +8,7 @@ const RegisterPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
-  const [role, setRole] = useState('employee');
+  const [role, setRole] = useState('associate');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,7 +27,14 @@ const RegisterPage: React.FC = () => {
       });
       navigate('/login');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Registry rejection. Conflict detected in data packet.');
+      const detail = err.response?.data?.detail;
+      let errorMsg = 'Registry rejection. Conflict detected in data packet.';
+      if (typeof detail === 'string') {
+        errorMsg = detail;
+      } else if (Array.isArray(detail) && detail.length > 0 && detail[0].msg) {
+        errorMsg = detail[0].msg;
+      }
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -110,9 +117,9 @@ const RegisterPage: React.FC = () => {
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
                   >
-                    <option value="employee" className="bg-[#010204]">Lvl 1 — Associate</option>
-                    <option value="manager" className="bg-[#010204]">Lvl 4 — Controller</option>
-                    <option value="admin" className="bg-[#010204]">Lvl 9 — Root Admin</option>
+                    <option value="associate" className="bg-[#010204]">Lvl 1 — Associate</option>
+                    <option value="controller" className="bg-[#010204]">Lvl 4 — Controller</option>
+                    <option value="root_admin" className="bg-[#010204]">Lvl 9 — Root Admin</option>
                   </select>
                   <Sparkles className="absolute right-6 top-1/2 -translate-y-1/2 w-4 h-4 text-primary pointer-events-none opacity-40" />
                 </div>

@@ -17,6 +17,16 @@ class OrchestratorRequest(BaseModel):
     certification_target: str
     employee_skills: list[str]
 
+class QueryRequest(BaseModel):
+    query: str
+
+@router.post("/query")
+async def query_intelligence(req: QueryRequest, current_user: Any = Depends(deps.get_current_active_user)):
+    """
+    Handles complex workforce intelligence queries via the Foundry IQ Engine.
+    """
+    return await foundry_iq.process_query(req.query, str(current_user.id))
+
 @router.post("/orchestrate")
 async def run_multi_agent(req: OrchestratorRequest, current_user: Any = Depends(deps.get_current_active_user)):
     """

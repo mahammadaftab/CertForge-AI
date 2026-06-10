@@ -2,25 +2,27 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../lib/api';
 
 export const UserRole = {
-  ADMIN: 'admin',
-  MANAGER: 'manager',
-  EMPLOYEE: 'employee',
+  ROOT_ADMIN: 'root_admin',
+  CONTROLLER: 'controller',
+  ASSOCIATE: 'associate',
+  EMPLOYEE: 'employee', // Legacy support
+  MANAGER: 'manager',   // Legacy support
+  ADMIN: 'admin',       // Legacy support
 } as const;
 
-export type UserRole = typeof UserRole[keyof typeof UserRole];
+export type UserRoleType = typeof UserRole[keyof typeof UserRole];
 
-export interface User {
+interface User {
   id: string;
   email: string;
   full_name: string;
-  role: UserRole;
-  is_active: boolean;
+  role: UserRoleType;
 }
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  login: (accessToken: string, refreshToken: string) => void;
+  login: (token: string, userData: User) => void;
   logout: () => void;
 }
 
@@ -30,42 +32,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchUser = async () => {
-    try {
-      const response = await api.post('/auth/test-token');
-      setUser(response.data);
-    } catch (error) {
-      setUser(null);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      fetchUser();
-    } else {
+    const initAuth = async () => {
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('user');
+      
+      if (token && savedUser) {
+        try {
+          const userData = JSON.parse(savedUser);
+          
+          // CRITICAL: Validate that userData is a valid object and not a legacy string
+          if (userData && typeof userData === 'object' && userData.role) {
+            setUser(userData);
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+          } else {
+            console.warn("Invalid user data detected in session. Purging...");
+            logout();
+          }
+        } catch (e) {
+          console.error("Auth init failed", e);
+          logout();
+        }
+      }
       setLoading(false);
-    }
+    };
+    initAuth();
   }, []);
 
-  const login = (accessToken: string, refreshToken: string) => {
-    localStorage.setItem('access_token', accessToken);
-    localStorage.setItem('refresh_token', refreshToken);
-    fetchUser();
+  const login = (token: string, userData: any) => {
+    // Standardize user object if necessary (e.g. mapping _id to id)
+    const normalizedUser = {
+      ...userData,
+      id: userData.id || userData._id
+    };
+
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(normalizedUser));
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setUser(normalizedUser);
   };
 
-  const logout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch (error) {
-      console.error("Logout error", error);
-    } finally {
-      localStorage.clear();
-      setUser(null);
-      window.location.href = '/login';
-    }
+  const logout = () => {
+    // Aggressively clear all session data
+    localStorage.clear();
+    sessionStorage.clear();
+    delete api.defaults.headers.common['Authorization'];
+    setUser(null);
   };
 
   return (

@@ -8,7 +8,7 @@ import datetime
 router = APIRouter()
 
 @router.get("/telemetry")
-async def get_work_iq_telemetry(current_user: Any = Depends(deps.RoleChecker([UserRole.ADMIN, UserRole.MANAGER]))):
+async def get_work_iq_telemetry(current_user: Any = Depends(deps.RoleChecker([UserRole.ROOT_ADMIN, UserRole.CONTROLLER, UserRole.ASSOCIATE]))):
     """
     Returns dynamically calculated workload and burnout telemetry.
     """

@@ -8,7 +8,7 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
+  const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -27,15 +27,17 @@ api.interceptors.response.use(
           const res = await axios.post(`${import.meta.env.VITE_API_URL || 'https://certforge-ai.onrender.com/api/v1'}/auth/refresh-token`, {
             refresh_token: refreshToken,
           });
-          localStorage.setItem('access_token', res.data.access_token);
+          localStorage.setItem('token', res.data.access_token);
           api.defaults.headers.common['Authorization'] = `Bearer ${res.data.access_token}`;
           return api(originalRequest);
         } catch (err) {
-          localStorage.clear();
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
           window.location.href = '/login';
         }
       } else {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
         window.location.href = '/login';
       }
     }

@@ -8,124 +8,128 @@ from beanie import init_beanie
 from app.core.config import settings
 from app.core.security import get_password_hash
 from app.models.user import User, UserRole
-from app.models.employee import Employee
-from app.models.manager import Manager
-from app.models.team import Team
-from app.models.certification import Certification
-from app.models.learning_path import LearningPath
-from app.models.study_plan import StudyPlan
-from app.models.assessment import Assessment
-from app.models.assessment_result import AssessmentResult
-from app.models.readiness_score import ReadinessScore
-from app.models.notification import Notification
-from app.models.audit_log import AuditLog
-from app.models.report import Report
+from app.models.production import (
+    Certification, 
+    LearningPath, 
+    StudyPlan, 
+    Assessment, 
+    AssessmentResult, 
+    ReadinessScore, 
+    Notification, 
+    AgentLog, 
+    ActivityLog
+)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 async def seed_data():
-    logger.info("Initializing industrial-strength seed sequence...")
+    logger.info("Initializing enterprise-tier seed sequence...")
     client = AsyncIOMotorClient(settings.MONGODB_URL, uuidRepresentation='standard')
     await init_beanie(
         database=client[settings.MONGODB_DB_NAME],
-        document_models=[User, Employee, Manager, Team, Certification, LearningPath, StudyPlan, Assessment, AssessmentResult, ReadinessScore, Notification, AuditLog, Report]
+        document_models=[
+            User, Certification, LearningPath, StudyPlan, 
+            Assessment, AssessmentResult, ReadinessScore, 
+            Notification, AgentLog, ActivityLog
+        ]
     )
 
-    # Clean existing data for fresh seed (Optional, remove in production)
-    # logger.info("Clearing existing data...")
-    # await User.find_all().delete()
-    # await Employee.find_all().delete()
-    # ... etc
+    # 1. Create Root Admin
+    admin_email = "admin@certforge.ai"
+    admin_user = await User.find_one(User.email == admin_email)
+    if not admin_user:
+        admin_user = User(
+            email=admin_email,
+            hashed_password=get_password_hash("adminPass"),
+            full_name="Root Administrator",
+            role=UserRole.ROOT_ADMIN
+        )
+        await admin_user.insert()
+    logger.info("Root Admin online.")
 
-    # 1. Create 20 Certifications
+    # 2. Create 10 Certifications
     certs = []
-    providers = ["Microsoft", "AWS", "Google", "Cisco", "HashiCorp"]
-    levels = ["Beginner", "Intermediate", "Expert"]
+    blueprints = [
+        {"name": "Azure Solutions Architect Expert", "code": "AZ-305", "level": "Expert"},
+        {"name": "Azure Administrator Associate", "code": "AZ-104", "level": "Intermediate"},
+        {"name": "Azure Security Engineer Associate", "code": "AZ-500", "level": "Intermediate"},
+        {"name": "Azure Fundamentals", "code": "AZ-900", "level": "Beginner"},
+        {"name": "Azure Developer Associate", "code": "AZ-204", "level": "Intermediate"},
+        {"name": "Azure AI Engineer Associate", "code": "AI-102", "level": "Intermediate"},
+        {"name": "Azure Data Engineer Associate", "code": "DP-203", "level": "Intermediate"},
+        {"name": "Azure Network Engineer Associate", "code": "AZ-700", "level": "Intermediate"},
+        {"name": "Azure DevOps Engineer Expert", "code": "AZ-400", "level": "Expert"},
+        {"name": "Fabric Analytics Engineer Associate", "code": "DP-600", "level": "Intermediate"}
+    ]
     
-    for i in range(1, 21):
-        provider = random.choice(providers)
-        code = f"{provider[:2]}-{100 + i}"
-        name = f"{provider} Professional {i}"
-        
-        cert = await Certification.find_one(Certification.code == code)
+    for bp in blueprints:
+        cert = await Certification.find_one(Certification.code == bp["code"])
         if not cert:
             cert = Certification(
-                name=name,
-                provider=provider,
-                code=code,
-                description=f"Industrial blueprint for {name}. High-fidelity curriculum.",
-                level=random.choice(levels)
+                name=bp["name"],
+                provider="Microsoft",
+                code=bp["code"],
+                description=f"Official production protocol for {bp['name']}. Validated skill mesh.",
+                level=bp["level"]
             )
             await cert.insert()
         certs.append(cert)
-    logger.info("20 Certifications verified.")
+    logger.info("10 Enterprise Certifications verified.")
 
-    # 2. Create 10 Teams and Managers
-    teams = []
-    departments = ["Cloud Ops", "Security", "AI/ML", "DevOps", "Infrastructure", "FinOps", "Data Eng"]
+    # 3. Create Controllers and Associates
+    titles = ["Cloud Architect", "Security Analyst", "Systems Engineer", "Data Scientist", "DevOps Lead"]
+    depts = ["Cloud Ops", "Security", "AI/ML", "DevOps", "Infrastructure"]
     
-    for i in range(1, 11):
-        m_email = f"manager{i}@certforge.ai"
-        m_user = await User.find_one(User.email == m_email)
-        if not m_user:
-            m_user = User(
-                email=m_email,
+    # Controllers
+    for i in range(1, 4):
+        c_email = f"controller{i}@certforge.ai"
+        c_user = await User.find_one(User.email == c_email)
+        if not c_user:
+            c_user = User(
+                email=c_email,
                 hashed_password=get_password_hash("securepass"),
-                full_name=f"Manager {i}",
-                role=UserRole.MANAGER
+                full_name=f"Controller {i}",
+                role=UserRole.CONTROLLER
             )
-            await m_user.insert()
+            await c_user.insert()
             
-            manager = Manager(user=m_user, department=random.choice(departments))
-            await manager.insert()
+            # Audit log
+            await ActivityLog(
+                user_id=str(c_user.id), 
+                action="CONTROLLER_REGISTRY_SYNC", 
+                module="AUTH",
+                details=f"Assigned to {random.choice(depts)} unit"
+            ).insert()
             
-            team = Team(name=f"Squad {i} — {manager.department}", description=f"Strategic cluster {i}", manager=manager)
-            await team.insert()
-            teams.append(team)
-        else:
-            team = await Team.find_one({"name": {"$regex": f"Squad {i}"}})
-            if team: teams.append(team)
-    logger.info("10 Teams and Managers online.")
-
-    # 3. Create 100 Employees
-    titles = ["Cloud Engineer", "Security Analyst", "Systems Architect", "Data Scientist", "DevOps Specialist"]
-    
-    for i in range(1, 101):
-        email = f"employee{i}@certforge.ai"
-        user = await User.find_one(User.email == email)
-        if not user:
-            user = User(
-                email=email,
-                hashed_password=get_password_hash("employeePass"),
-                full_name=f"Employee {i}",
-                role=UserRole.EMPLOYEE
+    # Associates
+    for i in range(1, 15):
+        a_email = f"associate{i}@certforge.ai"
+        a_user = await User.find_one(User.email == a_email)
+        if not a_user:
+            a_user = User(
+                email=a_email,
+                hashed_password=get_password_hash("associatePass"),
+                full_name=f"Associate {i}",
+                role=UserRole.ASSOCIATE
             )
-            await user.insert()
+            await a_user.insert()
             
-            target_team = random.choice(teams)
-            emp = Employee(
-                user=user,
-                job_title=random.choice(titles),
-                team_id=target_team.name
-            )
-            await emp.insert()
-            
-            # Generate Real Artifacts for each employee
             # Random readiness for a random cert
             target_cert = random.choice(certs)
             readiness = ReadinessScore(
-                employee=emp,
-                certification=target_cert,
-                score=float(random.randint(40, 98)),
-                ai_feedback="Cognitive trajectory aligned with blueprint targets."
+                user_id=str(a_user.id),
+                certification_id=str(target_cert.id),
+                score=float(random.randint(40, 95)),
+                dimensions={"Knowledge": 70, "Practical": 60, "Velocity": 80},
+                strengths=["理論 Mastery"],
+                weaknesses=["Implementation Latency"],
+                recommendations=["Initialize Focus Cycle"],
+                verification_status="Partial" if i % 2 == 0 else "Verified"
             )
             await readiness.insert()
-            
-            # Audit log for session start
-            await AuditLog(user=user, action="NEURAL_SYNC", details={"type": "initialization"}).insert()
 
-    logger.info("100 Employees and workforce signals successfully mapped to Atlas.")
+    logger.info("Full enterprise workforce mesh successfully mapped to Atlas.")
 
 if __name__ == "__main__":
     asyncio.run(seed_data())

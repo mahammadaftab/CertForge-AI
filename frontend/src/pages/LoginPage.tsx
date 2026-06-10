@@ -19,6 +19,10 @@ const LoginPage: React.FC = () => {
     setError('');
     
     try {
+      // Clear any existing neural session data to prevent cross-contamination
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      
       const formData = new URLSearchParams();
       formData.append('username', email);
       formData.append('password', password);
@@ -29,7 +33,17 @@ const LoginPage: React.FC = () => {
         },
       });
 
-      login(response.data.access_token, response.data.refresh_token);
+      const { access_token } = response.data;
+      
+      // CRITICAL: Persist token immediately so the interceptor picks it up for the next call
+      localStorage.setItem('token', access_token);
+      
+      // Fetch full user profile using the NEW token (automatically handled by interceptor)
+      const userRes = await api.post('/auth/test-token');
+      
+      // Initialize React state with verified identity
+      login(access_token, userRes.data);
+      
       navigate('/dashboard');
     } catch (err: any) {
       setError(err.response?.data?.detail || 'System rejected credentials. Identity mismatch.');

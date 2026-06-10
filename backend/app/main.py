@@ -1,7 +1,8 @@
 import asyncio
 import logging
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.core.config import settings
 from app.core.logging import setup_logging
 from app.api.v1.router import api_router
@@ -21,15 +22,32 @@ def create_app() -> FastAPI:
         openapi_url=f"{settings.API_V1_STR}/openapi.json"
     )
 
-    # Set all CORS enabled origins
-    if settings.BACKEND_CORS_ORIGINS:
-        app.add_middleware(
-            CORSMiddleware,
-            allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
-            allow_credentials=True,
-            allow_methods=["*"],
-            allow_headers=["*"],
+    # Global Exception Handler for debugging 500s
+    @app.exception_handler(Exception)
+    async def global_exception_handler(request: Request, exc: Exception):
+        logger.error(f"GLOBAL ERROR: {exc}", exc_info=True)
+        return JSONResponse(
+            status_code=500,
+            content={"detail": "Internal Server Error. Check backend logs for neural link faults."},
         )
+
+    # Set all CORS enabled origins
+    # We include both localhost:5173 and 127.0.0.1:5173 to be exhaustive
+    origins = [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "https://cert-forge-ai.vercel.app"
+    ]
+    
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+        expose_headers=["*"]
+    )
 
     # Include routers
     app.include_router(api_router, prefix=settings.API_V1_STR)
@@ -38,15 +56,20 @@ def create_app() -> FastAPI:
     async def startup_event():
         logger.info(f"Starting {settings.PROJECT_NAME} API...")
         for attempt in range(1, DB_INIT_MAX_RETRIES + 1):
-            await database.init_db()
-            if database.db_initialized:
-                logger.info("MongoDB Atlas connected and Beanie initialized.")
-                return
+            try:
+                await database.init_db()
+                if database.db_initialized:
+                    logger.info("MongoDB Atlas connected and Beanie initialized.")
+                    return
+            except Exception as e:
+                logger.error(f"Database init exception: {e}")
+            
             logger.warning(
                 f"MongoDB connection attempt {attempt}/{DB_INIT_MAX_RETRIES} failed. "
                 f"Retrying in {DB_INIT_RETRY_DELAY_SECONDS}s..."
             )
             await asyncio.sleep(DB_INIT_RETRY_DELAY_SECONDS)
+        
         logger.error(
             "All MongoDB connection attempts failed. "
             "API will start but DB-dependent routes will return 503."
