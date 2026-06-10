@@ -80,3 +80,4 @@ npm run dev
 
 ## Architecture Explanation
 The backend enforces strong typing with Pydantic and relies on SQLAlchemy ORM for database queries. LangChain and LangGraph power complex AI orchestration directly integrated within the backend `services/ai_service.py` to provide rich intelligence. The frontend consumes these APIs securely and visualizes data using ShadCN and Recharts.
+
