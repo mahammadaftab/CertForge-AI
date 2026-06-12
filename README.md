@@ -109,6 +109,11 @@ pip install -r requirements.txt
 python -m app.db.seed     # Seed the initial enterprise registry
 uvicorn app.main:app --reload
 ```
+```bash
+cd backend
+venv\Scripts\activate  
+python -m app.db.seed     
+uvicorn app.main:app --reload
 
 ### 3. Frontend Initialization
 ```bash
