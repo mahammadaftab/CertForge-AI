@@ -40,18 +40,26 @@ const DataPacket = ({ start, end, speed = 0.02 }: { start: THREE.Vector3, end: T
 
 const IntelligenceCore = ({ scrollProgress }: { scrollProgress: any }) => {
   const coreRef = useRef<THREE.Group>(null);
-  const scale = useTransform(scrollProgress, [0, 0.2, 0.5], [1.5, 2.5, 0.8]);
-  const rotationY = useTransform(scrollProgress, [0, 1], [0, Math.PI * 4]);
-  const opacity = useTransform(scrollProgress, [0, 0.1, 0.8, 1], [0.4, 0.8, 0.6, 0]);
 
   useFrame(({ clock }) => {
     if (coreRef.current) {
       coreRef.current.position.y = Math.sin(clock.getElapsedTime()) * 0.1;
+      const progress = scrollProgress.get();
+
+      let targetScale = 0.8;
+      if (progress <= 0.2) {
+        targetScale = 1.5 + (2.5 - 1.5) * (progress / 0.2);
+      } else if (progress <= 0.5) {
+        targetScale = 2.5 + (0.8 - 2.5) * ((progress - 0.2) / 0.3);
+      }
+
+      coreRef.current.scale.set(targetScale, targetScale, targetScale);
+      coreRef.current.rotation.y = THREE.MathUtils.lerp(0, Math.PI * 4, progress);
     }
   });
 
   return (
-    <motion.group ref={coreRef} scale={scale} rotation-y={rotationY}>
+    <group ref={coreRef}>
       <Float speed={2} rotationIntensity={0.5} floatIntensity={1}>
         <Sphere args={[1.2, 64, 64]}>
           <MeshDistortMaterial 
@@ -78,7 +86,7 @@ const IntelligenceCore = ({ scrollProgress }: { scrollProgress: any }) => {
         const end = new THREE.Vector3(0, 0, 0);
         return <DataPacket key={i} start={start} end={end} speed={0.005 + Math.random() * 0.01} />;
       })}
-    </motion.group>
+    </group>
   );
 };
 
@@ -359,6 +367,8 @@ const FoundryIQSection_Legacy = () => (
     {/* This is a spacer to ensure scroll depth for the cinematic layer */}
   </div>
 );
+
+const FoundryIQSection = FoundryIQSection_Legacy;
 
 const ImpactAndCTASection = ({ navigate }: { navigate: any }) => (
   <div className="py-40 relative z-10 px-6 max-w-7xl mx-auto text-center border-t border-white/5 bg-[#010204]">
