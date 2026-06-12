@@ -34,9 +34,6 @@ def create_app() -> FastAPI:
     # Set all CORS enabled origins
     # We include both localhost:5173 and 127.0.0.1:5173 to be exhaustive
     origins = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost:3000",
         "https://cert-forge-ai.vercel.app"
     ]
     
