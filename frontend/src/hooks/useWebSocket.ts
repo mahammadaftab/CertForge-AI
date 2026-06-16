@@ -17,10 +17,19 @@ export const useWebSocket = () => {
     if (!user?.id || ws.current?.readyState === WebSocket.OPEN) return;
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const host = window.location.host;
-    // Assuming backend is on the same host or mapped via proxy
-    // For development with Vite proxy:
-    const wsUrl = `${protocol}//${host}/api/v1/ws/${user.id}`;
+    
+    // Dynamically resolve wsUrl from the configured API URL
+    const apiUrl = import.meta.env.VITE_API_URL || 'https://certforge-ai.onrender.com/api/v1';
+    let wsUrl: string;
+    
+    if (apiUrl.startsWith('http://') || apiUrl.startsWith('https://')) {
+      const url = new URL(apiUrl);
+      const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+      wsUrl = `${wsProtocol}//${url.host}${url.pathname}/ws/${user.id}`;
+    } else {
+      const host = window.location.host;
+      wsUrl = `${protocol}//${host}/api/v1/ws/${user.id}`;
+    }
 
     ws.current = new WebSocket(wsUrl);
 

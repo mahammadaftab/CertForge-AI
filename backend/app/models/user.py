@@ -2,6 +2,8 @@ from typing import Optional
 from pydantic import EmailStr
 from app.db.base_class import BaseDocument
 import enum
+import pymongo
+from pymongo import IndexModel
 
 class UserRole(str, enum.Enum):
     ROOT_ADMIN = "root_admin"
@@ -18,4 +20,6 @@ class User(BaseDocument):
 
     class Settings:
         name = "users"
-        indexes = ["email"]
+        indexes = [
+            pymongo.IndexModel([("email", pymongo.ASCENDING)], unique=True, name="unique_email_idx")
+        ]

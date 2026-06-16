@@ -82,21 +82,33 @@ async def register_user(
     """
     Create new user.
     """
-    user = await User.find_one({"email": user_in.email})
-    if user:
-        raise HTTPException(
-            status_code=400,
-            detail="The user with this username already exists in the system.",
+    try:
+        user = await User.find_one({"email": user_in.email})
+        if user:
+            raise HTTPException(
+                status_code=400,
+                detail="The user with this username already exists in the system.",
+            )
+        
+        db_obj = User(
+            email=user_in.email,
+            hashed_password=security.get_password_hash(user_in.password),
+            full_name=user_in.full_name,
+            role=user_in.role,
         )
-    
-    db_obj = User(
-        email=user_in.email,
-        hashed_password=security.get_password_hash(user_in.password),
-        full_name=user_in.full_name,
-        role=user_in.role,
-    )
-    await db_obj.insert()
-    return db_obj
+        await db_obj.insert()
+        return db_obj
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.exception("Registration failed")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Registration failed: {str(e)}"
+        )
 
 @router.post("/test-token", response_model=UserSchema)
 async def test_token(current_user: User = Depends(deps.get_current_active_user)) -> Any:

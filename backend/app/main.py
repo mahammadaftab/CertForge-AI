@@ -26,16 +26,23 @@ def create_app() -> FastAPI:
     @app.exception_handler(Exception)
     async def global_exception_handler(request: Request, exc: Exception):
         logger.error(f"GLOBAL ERROR: {exc}", exc_info=True)
+        origin = request.headers.get("origin")
+        headers = {}
+        # We check against the settings so we don't depend on local variable order
+        if origin in settings.BACKEND_CORS_ORIGINS:
+            headers["Access-Control-Allow-Origin"] = origin
+            headers["Access-Control-Allow-Credentials"] = "true"
+            headers["Access-Control-Allow-Methods"] = "*"
+            headers["Access-Control-Allow-Headers"] = "*"
+            
         return JSONResponse(
             status_code=500,
             content={"detail": "Internal Server Error. Check backend logs for neural link faults."},
+            headers=headers
         )
 
     # Set all CORS enabled origins
-    # We include both localhost:5173 and 127.0.0.1:5173 to be exhaustive
-    origins = [
-        "https://cert-forge-ai.vercel.app"
-    ]
+    origins = settings.BACKEND_CORS_ORIGINS
     
     app.add_middleware(
         CORSMiddleware,
